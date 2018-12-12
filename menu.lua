@@ -19,7 +19,7 @@ local playBtn
 local function onPlayBtnRelease()
 
 	-- go to game.lua scene
-	composer.gotoScene( "game", "fade", 500 )
+	composer.gotoScene( "game", "slideUp", 500 )
 
 	return true	-- indicates successful touch
 end
@@ -46,7 +46,7 @@ function scene:create( event )
 
 	-- create a widget button (which will loads level1.lua on release)
 	playBtn = widget.newButton{
-		label="Play Now",
+		label="Play",
 		labelColor = { default={255}, over={128} },
 		default="button.png",
 		over="button-over.png",
