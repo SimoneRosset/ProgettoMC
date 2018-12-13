@@ -14,6 +14,7 @@ local widget = require "widget"
 
 -- forward declarations and other locals
 local playBtn
+local highBtn
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
@@ -23,7 +24,13 @@ local function onPlayBtnRelease()
 
 	return true	-- indicates successful touch
 end
+local function onHighBtnRelease()
 
+	-- go to game.lua scene
+	composer.gotoScene( "game", "slideUp", 500 )
+
+	return true	-- indicates successful touch
+end
 function scene:create( event )
 	local sceneGroup = self.view
 
@@ -40,26 +47,38 @@ function scene:create( event )
 	backgroundM.y = 0 + display.screenOriginY
 
 	-- create/position logo/title image on upper-half of the screen
-	local titleLogo = display.newImageRect( "logo.png", 264, 42 )
+	local titleLogo = display.newImageRect( "logo.png", 200, 50 )
 	titleLogo.x = display.contentCenterX
 	titleLogo.y = 100
 
 	-- create a widget button (which will loads level1.lua on release)
 	playBtn = widget.newButton{
-		label="Play",
-		labelColor = { default={255}, over={128} },
+		label="play",
+		labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
 		default="button.png",
 		over="button-over.png",
 		width=154, height=40,
 		onRelease = onPlayBtnRelease	-- event listener function
 	}
 	playBtn.x = display.contentCenterX
-	playBtn.y = display.contentHeight - 125
+	playBtn.y = display.contentHeight - 160
+
+	highBtn = widget.newButton{
+		label="highScore",
+		labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
+		default="button.png",
+		over="button-over.png",
+		width=154, height=40,
+		onRelease = onHighBtnRelease	-- event listener function
+	}
+	highBtn.x = display.contentCenterX
+	highBtn.y = display.contentHeight - 125
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
 	sceneGroup:insert( titleLogo )
 	sceneGroup:insert( playBtn )
+	sceneGroup:insert( highBtn )
 end
 
 function scene:show( event )
@@ -101,6 +120,10 @@ function scene:destroy( event )
 	if playBtn then
 		playBtn:removeSelf()	-- widgets must be manually removed
 		playBtn = nil
+	end
+	if highBtn then
+		highBtn:removeSelf()	-- widgets must be manually removed
+		highBtn = nil
 	end
 end
 
