@@ -16,7 +16,7 @@ local physics = require "physics"
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 
 ----------------------------aggiunte da codice precedente-----------------------
-local velocity=8
+local velocity=2
 local disText = display.newText( 0, display.contentCenterX, 50, native.systemFont, 50 )
 disText:setFillColor( 0, 0, 0 )
 
@@ -59,7 +59,7 @@ function background:touch(event)
 	if event.phase == "began" then
 				held=true;
 		elseif event.phase == "moved" and held then
-				disText.text = (balloon.y)/100-(balloon.y)%100/100
+				disText.text = (balloon.y-halfH*1.5)/100-(balloon.y-halfH*1.5)%100/100
 			if balloon.x<event.x then
 					balloon.x=balloon.x+velocity
 				end

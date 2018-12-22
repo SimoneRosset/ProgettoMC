@@ -20,14 +20,14 @@ local highBtn
 local function onPlayBtnRelease()
 
 	-- go to game.lua scene
-	composer.gotoScene( "game", "slideUp", 500 )
+	composer.gotoScene( "game", "fade", 500 )
 
 	return true	-- indicates successful touch
 end
 local function onHighBtnRelease()
 
 	-- go to game.lua scene
-	composer.gotoScene( "game", "slideUp", 500 )
+	composer.gotoScene( "game", "fade", 500 )
 
 	return true	-- indicates successful touch
 end
@@ -45,11 +45,12 @@ function scene:create( event )
 	backgroundM.anchorY = 0
 	backgroundM.x = 0 + display.screenOriginX
 	backgroundM.y = 0 + display.screenOriginY
+	backgroundM:setFillColor( .6 )
 
 	-- create/position logo/title image on upper-half of the screen
 	local titleLogo = display.newImageRect( "logo.png", 200, 50 )
 	titleLogo.x = display.contentCenterX
-	titleLogo.y = 100
+	titleLogo.y = 200
 
 	-- create a widget button (which will loads level1.lua on release)
 	playBtn = widget.newButton{
