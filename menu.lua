@@ -46,10 +46,10 @@ function scene:create( event )
 	backgroundM.anchorY = 0
 	backgroundM.x = 0 + display.screenOriginX
 	backgroundM.y = 0 + display.screenOriginY
-	backgroundM:setFillColor( .6 )
+	backgroundM:setFillColor( .7 )
 
 	-- create/position logo/title image on upper-half of the screen
-	local titleLogo = display.newImageRect( "logo.png", 200, 50 )
+	local titleLogo = display.newImageRect( "logo.png", 250, 60 )
 	titleLogo.x = display.contentCenterX
 	titleLogo.y = display.contentCenterY*0.7
 
@@ -57,9 +57,9 @@ function scene:create( event )
 	image.x, image.y = display.contentCenterX,  display.contentCenterY
 	image.alpha= 0.7
 
-	cloud = display.newImageRect( "cloud.png", 100, 45 )
-	cloud.x, cloud.y = halfW*0.5, halfH*0.3
-cloud.alpha=0.7
+	cloud1 = display.newImageRect( "cloud.png", 100, 45 )
+	cloud1.x, cloud1.y = halfW*0.5, halfH*0.3
+cloud1.alpha=0.7
 cloud2 = display.newImageRect( "cloud2.png", 85, 25 )
 cloud2.x, cloud2.y = halfW*1.5, halfH*0.5
 cloud2.alpha=0.7
@@ -67,19 +67,19 @@ cloud3 = display.newImageRect( "cloud2.png", 150, 80 )
 cloud3.x, cloud3.y = halfW*0.8, halfH*0.2
 cloud3.alpha=0.7
 
-	grass = display.newImageRect( "grass.png", screenW, 150 )
+	grass = display.newImageRect( "ground.png", screenW, screenH*0.3 )
 	grass.anchorX = 0
 	grass.anchorY = 1
 	--  draw the grass at the very bottom of the screen
 	grass.x, grass.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
-grass.alpha=0.7
+  grass.alpha=0.7
 	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
-	grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
+	--grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
 
 	-- create a widget button (which will loads level1.lua on release)
 	playBtn = widget.newButton{
 		label="play",
-		labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
+		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
 		width=154, height=40,
@@ -90,7 +90,7 @@ grass.alpha=0.7
 
 	highBtn = widget.newButton{
 		label="highScore",
-		labelColor = { default={ 1, 1, 1 }, over={ 0, 0, 0, 0.5 } },
+		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
 		width=154, height=40,
@@ -102,7 +102,7 @@ grass.alpha=0.7
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
 	sceneGroup:insert( image )
-	sceneGroup:insert( cloud )
+	sceneGroup:insert( cloud1 )
 	sceneGroup:insert( cloud2 )
 	sceneGroup:insert( cloud3 )
 	sceneGroup:insert( grass )

@@ -16,10 +16,10 @@ local physics = require "physics"
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 
 ----------------------------aggiunte da codice precedente-----------------------
-local velocity=0.2
+local velocity=2
 local move=1
-local disText = display.newText( 0, display.contentCenterX, 50, native.systemFont, 50 )
-disText:setFillColor( 0, 0, 0 )
+local score = display.newText( 0, display.contentCenterX, 50, native.systemFont, 50 )
+score:setFillColor( 0, 0, 0 )
 
 
 
@@ -57,11 +57,11 @@ function scene:create( event )
 	sky.anchorY = 0
 	sky.x = 0 + display.screenOriginX
 	sky.y = 0 + display.screenOriginY
-	sky:setFillColor( 1 )
+	sky:setFillColor( 0.9)
 
-	cloud = display.newImageRect( "cloud.png", 100, 45 )
-	cloud.x, cloud.y = halfW*0.5, halfH*0.3
-cloud.alpha=0.7
+	cloud1 = display.newImageRect( "cloud.png", 100, 45 )
+	cloud1.x, cloud1.y = halfW*0.5, halfH*0.3
+cloud1.alpha=0.7
 cloud2 = display.newImageRect( "cloud2.png", 85, 25 )
 cloud2.x, cloud2.y = halfW*1.5, halfH*0.5
 cloud2.alpha=0.7
@@ -72,20 +72,20 @@ cloud3.alpha=0.7
 	-- make a crate (off-screen), position it, and rotate slightly
 	balloon = display.newImageRect( "balloon.png", 45, 45 )
 	balloon.x, balloon.y = halfW, halfH --questo coefficiente posiziona il palloncino ad un'altezza intermedia
-	physics.addBody( balloon, { density=1.0, friction=0.3, bounce=0.3 } )
+	physics.addBody( balloon  ) --{ density=1.0, friction=1, bounce=0.3 }
 
 	--crate.rotation = 15
 
 	-- add physics to the crate
 	-- create a grass object and add physics (with custom shape)
-	grass = display.newImageRect( "grass.png", screenW, 150 )
+	grass = display.newImageRect( "ground.png", screenW, screenH*0.3 )
 	grass.anchorX = 0
 	grass.anchorY = 1
 	--  draw the grass at the very bottom of the screen
 	grass.x, grass.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
 
 	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
-	grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
+	--grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
 	--physics.addBody( grass, "static", { friction=0.3, shape=grassShape } )
 	-- all display objects must be inserted into group
 	--sceneGroup:insert( background )
@@ -96,11 +96,29 @@ cloud3.alpha=0.7
 	world=display.newGroup()
 	sceneGroup:insert(world)
 	background:insert( sky )
+	background:insert( score )
+
 	world:insert( grass )
-	world:insert( cloud )
-		world:insert( cloud2 )
-			world:insert( cloud3 )
 	world:insert( balloon )
+	world:insert( cloud1 )
+	world:insert( cloud2 )
+	world:insert( cloud3 )
+
+
+	for _= 1, 6 do
+		local cloudImages = { "cloud.png", "cloud2.png" }
+		local temp=math.random(20,150)
+		local cloud = display.newImageRect(world, cloudImages[math.random(#cloudImages)],temp,temp/2)
+		cloud.anchorX, cloud.anchorY = 0.5, 1
+		cloud.x, cloud.y = math.random(display.actualContentWidth), math.random(0, display.actualContentHeight*2)*-1
+
+
+		 --cloud._xScale = math.random()/2 + 0.75
+		 --cloud.xScale, cloud.yScale = cloud._xScale, cloud._xScale
+		--cloud:setFillColor(color.hex2rgb("6D9DC5"))
+	end
+
+
 --terrain={}
 --terrain[1] = sky
 -- function spawnAir()
@@ -136,11 +154,23 @@ cloud3.alpha=0.7
 end
 local function enterFrame(event)
 	if not balloon.getLinearVelocity then return false end
-	disText.text = -((balloon.y-halfH*1.5)/100-(balloon.y-halfH*1.5)%100/100)
-local vx,vy=balloon:getLinearVelocity()
-if vy > velocity then vy = velocity end -- terminal velocity
-	balloon:setLinearVelocity(0,vy)
+	score.text = -((balloon.y-halfH)/100-(balloon.y-halfH)%100/100)
 
+local vx,vy=balloon:getLinearVelocity()
+if -vy > velocity*100 then
+	physics.setGravity( 0, 0 )
+
+end -- terminal velocity
+	--balloon:setLinearVelocity(0,vy)
+	-- recycle old buildings (pass 1)
+		for i = 3, world.numChildren do
+			local y = world[i].y --and world[i].contentBounds.xMax or 0
+			--if buildings[i] then buildings[i]:translate(-vx/topSpeed*6,0) end
+			if y > balloon.y+display.actualContentHeight then
+				--display.remove(world[i])
+				world[i]:translate(math.random(-50, 50), math.random(display.actualContentHeight, display.actualContentHeight*3)*-2) --math.random(display.actualContentWidth), math.random(display.actualContentHeight)*-2
+			end
+		end
 	-- -- recycle old buildings (pass 2)
 	-- 	for i = 1, background.numChildren do
 	-- 		-- background[i].rotation = world.rotation * 0.85
