@@ -6,6 +6,7 @@
 
 local composer = require( "composer" )
 local scene = composer.newScene()
+local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 
 -- include Corona's "widget" library
 local widget = require "widget"
@@ -20,14 +21,14 @@ local highBtn
 local function onPlayBtnRelease()
 
 	-- go to game.lua scene
-	composer.gotoScene( "game", "fade", 500 )
+	composer.gotoScene( "game", "fade", 400 )
 
 	return true	-- indicates successful touch
 end
 local function onHighBtnRelease()
 
 	-- go to game.lua scene
-	composer.gotoScene( "game", "fade", 500 )
+	composer.gotoScene( "game", "fade", 400 )
 
 	return true	-- indicates successful touch
 end
@@ -50,7 +51,30 @@ function scene:create( event )
 	-- create/position logo/title image on upper-half of the screen
 	local titleLogo = display.newImageRect( "logo.png", 200, 50 )
 	titleLogo.x = display.contentCenterX
-	titleLogo.y = 200
+	titleLogo.y = display.contentCenterY*0.7
+
+	local image = display.newImageRect( "balloon.png", 45, 45 )
+	image.x, image.y = display.contentCenterX,  display.contentCenterY
+	image.alpha= 0.7
+
+	cloud = display.newImageRect( "cloud.png", 100, 45 )
+	cloud.x, cloud.y = halfW*0.5, halfH*0.3
+cloud.alpha=0.7
+cloud2 = display.newImageRect( "cloud2.png", 85, 25 )
+cloud2.x, cloud2.y = halfW*1.5, halfH*0.5
+cloud2.alpha=0.7
+cloud3 = display.newImageRect( "cloud2.png", 150, 80 )
+cloud3.x, cloud3.y = halfW*0.8, halfH*0.2
+cloud3.alpha=0.7
+
+	grass = display.newImageRect( "grass.png", screenW, 150 )
+	grass.anchorX = 0
+	grass.anchorY = 1
+	--  draw the grass at the very bottom of the screen
+	grass.x, grass.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
+grass.alpha=0.7
+	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
+	grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
 
 	-- create a widget button (which will loads level1.lua on release)
 	playBtn = widget.newButton{
@@ -62,7 +86,7 @@ function scene:create( event )
 		onRelease = onPlayBtnRelease	-- event listener function
 	}
 	playBtn.x = display.contentCenterX
-	playBtn.y = display.contentHeight - 160
+	playBtn.y = display.contentCenterY*1.2
 
 	highBtn = widget.newButton{
 		label="highScore",
@@ -73,10 +97,15 @@ function scene:create( event )
 		onRelease = onHighBtnRelease	-- event listener function
 	}
 	highBtn.x = display.contentCenterX
-	highBtn.y = display.contentHeight - 125
+	highBtn.y = display.contentCenterY*1.35
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
+	sceneGroup:insert( image )
+	sceneGroup:insert( cloud )
+	sceneGroup:insert( cloud2 )
+	sceneGroup:insert( cloud3 )
+	sceneGroup:insert( grass )
 	sceneGroup:insert( titleLogo )
 	sceneGroup:insert( playBtn )
 	sceneGroup:insert( highBtn )

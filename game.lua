@@ -16,63 +16,24 @@ local physics = require "physics"
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 
 ----------------------------aggiunte da codice precedente-----------------------
-local velocity=2
+local velocity=0.2
+local move=1
 local disText = display.newText( 0, display.contentCenterX, 50, native.systemFont, 50 )
 disText:setFillColor( 0, 0, 0 )
 
-local sky = display.newImageRect( "background.png", screenW, screenH )
-sky.anchorX = 0
-sky.anchorY = 0
-sky.x = 0 + display.screenOriginX
-sky.y = 0 + display.screenOriginY
-sky:setFillColor( 1 )
 
--- make a crate (off-screen), position it, and rotate slightly
-local balloon = display.newImageRect( "balloon.png", 45, 45 )
-balloon.x, balloon.y = halfW, halfH*1.5 --questo coefficiente posiziona il palloncino ad un'altezza intermedia
---crate.rotation = 15
 
--- add physics to the crate
---physics.addBody( balloon, { density=1.0, friction=0.3, bounce=0.3 } )
 
--- create a grass object and add physics (with custom shape)
-local grass = display.newImageRect( "grass.png", screenW, 20 )
-grass.anchorX = 0
-grass.anchorY = 1
---  draw the grass at the very bottom of the screen
-grass.x, grass.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
 
--- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
-local grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
---physics.addBody( grass, "static", { friction=0.3, shape=grassShape } )
--- all display objects must be inserted into group
---sceneGroup:insert( background )
---sceneGroup:insert( grass)
---sceneGroup:insert( balloon )
-local background= display.newGroup()
-
-background:insert( sky )
-background:insert( grass )
-background:insert( balloon )
-
-function background:touch(event)
-	if event.phase == "began" then
-				held=true;
-		elseif event.phase == "moved" and held then
-				disText.text = (balloon.y-halfH*1.5)/100-(balloon.y-halfH*1.5)%100/100
-			if balloon.x<event.x then
-					balloon.x=balloon.x+velocity
-				end
-					if balloon.x>event.x then
-							balloon.x=balloon.x-velocity
-						end
-
-		elseif event.phase == "ended" or event.phase == "cancelled" then
-				held=false
-		else held=false
-		end
+local function offScreen(object)
+	local bounds = object.contentBounds
+	local sox, soy = display.screenOriginX, display.screenOriginY
+	if bounds.xMax < sox then return true end
+	if bounds.yMax < soy then return true end
+	if bounds.xMin > display.actualContentWidth - sox then return true end
+	if bounds.yMin > display.actualContentHeight - soy then return true end
+	return false
 end
-background:addEventListener("touch", background)
 
 function scene:create( event )
 
@@ -83,12 +44,76 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 
-	sceneGroup:insert(background)
+
 	-- We need physics started to add bodies, but we don't want the simulaton
  	-- running until the scene is on the screen.
 	--physics.start()
 	--physics.pause()
+	physics.start()
+	physics.setGravity(0,-1)
 
+	sky = display.newImageRect( "background.png", screenW, screenH )
+	sky.anchorX = 0
+	sky.anchorY = 0
+	sky.x = 0 + display.screenOriginX
+	sky.y = 0 + display.screenOriginY
+	sky:setFillColor( 1 )
+
+	cloud = display.newImageRect( "cloud.png", 100, 45 )
+	cloud.x, cloud.y = halfW*0.5, halfH*0.3
+cloud.alpha=0.7
+cloud2 = display.newImageRect( "cloud2.png", 85, 25 )
+cloud2.x, cloud2.y = halfW*1.5, halfH*0.5
+cloud2.alpha=0.7
+cloud3 = display.newImageRect( "cloud2.png", 150, 80 )
+cloud3.x, cloud3.y = halfW*0.8, halfH*0.2
+cloud3.alpha=0.7
+
+	-- make a crate (off-screen), position it, and rotate slightly
+	balloon = display.newImageRect( "balloon.png", 45, 45 )
+	balloon.x, balloon.y = halfW, halfH --questo coefficiente posiziona il palloncino ad un'altezza intermedia
+	physics.addBody( balloon, { density=1.0, friction=0.3, bounce=0.3 } )
+
+	--crate.rotation = 15
+
+	-- add physics to the crate
+	-- create a grass object and add physics (with custom shape)
+	grass = display.newImageRect( "grass.png", screenW, 150 )
+	grass.anchorX = 0
+	grass.anchorY = 1
+	--  draw the grass at the very bottom of the screen
+	grass.x, grass.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
+
+	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
+	grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
+	--physics.addBody( grass, "static", { friction=0.3, shape=grassShape } )
+	-- all display objects must be inserted into group
+	--sceneGroup:insert( background )
+	--sceneGroup:insert( grass)
+	--sceneGroup:insert( balloon )
+	background= display.newGroup()
+	sceneGroup:insert(background)
+	world=display.newGroup()
+	sceneGroup:insert(world)
+	background:insert( sky )
+	world:insert( grass )
+	world:insert( cloud )
+		world:insert( cloud2 )
+			world:insert( cloud3 )
+	world:insert( balloon )
+--terrain={}
+--terrain[1] = sky
+-- function spawnAir()
+-- 	local x,y = terrain[#terrain][1].x, terrain[#terrain][1].y
+-- 	sky2 = display.newImageRect( "background.png", screenW, screenH )
+-- 	sky2.anchorX = 0
+-- 	sky2.anchorY = 0
+-- 	sky2.x = x
+-- 	sky2.y = y
+-- 	sky2:setFillColor( 1 )
+-- 		terrain[#terrain+1] = sky2
+-- 		terrain[#terrain]:toBack()
+-- end
 
 	-- create a grey rectangle as the backdrop
 	-- the physical screen will likely be a different shape than our defined content area
@@ -109,6 +134,59 @@ function scene:create( event )
 	---------------------------------------------------------------------------------
 
 end
+local function enterFrame(event)
+	if not balloon.getLinearVelocity then return false end
+	disText.text = -((balloon.y-halfH*1.5)/100-(balloon.y-halfH*1.5)%100/100)
+local vx,vy=balloon:getLinearVelocity()
+if vy > velocity then vy = velocity end -- terminal velocity
+	balloon:setLinearVelocity(0,vy)
+
+	-- -- recycle old buildings (pass 2)
+	-- 	for i = 1, background.numChildren do
+	-- 		-- background[i].rotation = world.rotation * 0.85
+	-- 		-- background[i].xScale, background[i].yScale = background[i]._xScale + (worldScale / 2),background[i]._xScale + (worldScale / 2)
+	-- 		-- background[i].x = background[i].x - (6 * (vx / topSpeed) * background[i].xScale )
+	-- 		local x = background[i].contentBounds.xMax
+	-- 		if x < -display.actualContentWidth then
+	-- 			background[i]:translate(display.actualContentWidth*3,0)
+	-- 		end
+	-- 	end
+
+	-- easiest way to scroll a map based on a character
+	-- find the difference between the hero and the display center
+	-- and move the world to compensate
+	local hx, hy = balloon:localToContent(0,0)
+	hx, hy = display.contentCenterX - hx, display.contentCenterY - hy
+	world.y = world.y + hy
+
+end
+local function shift(event)
+
+	if event.phase == "began" then
+				held=true;
+
+		elseif event.phase == "moved" and held then
+			if balloon.x==event.x then
+						balloon.rotation = 0
+				end
+			if balloon.x<event.x then
+					balloon.x=balloon.x+move
+						balloon.rotation = (event.x-balloon.x)/5 --accompagna lo spostamento con una inclinazione
+				end
+					if balloon.x>event.x then
+							balloon.x=balloon.x-move
+							balloon.rotation = (event.x-balloon.x)/5
+
+						end
+
+		elseif event.phase == "ended" or event.phase == "cancelled" then
+				held=false
+				balloon.rotation = 0
+
+		else held=false
+		end
+end
+
 
 function scene:show( event )
 --local sceneGroup = self.view
@@ -116,9 +194,11 @@ function scene:show( event )
 
 	if phase == "will" then
 		-- Called when the scene is still off screen and is about to move on screen
+		Runtime:addEventListener("enterFrame", enterFrame)
+		background:addEventListener("touch", shift)
 	elseif phase == "did" then
 		-- Called when the scene is now on screen
-		--
+
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
 		--physics.start()
