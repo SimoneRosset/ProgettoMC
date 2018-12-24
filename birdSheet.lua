@@ -1,11 +1,8 @@
---
--- created with TexturePacker (http://www.codeandweb.com/texturepacker)
---
--- $TexturePacker:SmartUpdate:cb100a9f0e443be4b1c7480752cd119e:9ce256d14ad36deeaa51c6cce856087b:9feadb688cda4c8b3252c2d455a26ec6$
---
--- local sheetInfo = require("mysheet")
--- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
--- local sprite = display.newSprite( myImageSheet , {frames={sheetInfo:getFrameIndex("sprite")}} )
+
+
+local sheetInfo = require("mysheet")
+local myImageSheet = graphics.newImageSheet( "birdSheet.png", sheetInfo:getSheet() )
+local sprite = display.newSprite( myImageSheet , {frames={sheetInfo:getFrameIndex("sprite")}} )
 --
 
 local SheetInfo = {}
@@ -13,7 +10,7 @@ local SheetInfo = {}
 SheetInfo.sheet =
 {
     frames = {
-    
+
         {
             -- bird01
             x=1,
@@ -24,7 +21,7 @@ SheetInfo.sheet =
         },
         {
             -- bird02
-            x=703,
+            x=700,
             y=1,
             width=700,
             height=700,
@@ -32,7 +29,7 @@ SheetInfo.sheet =
         },
         {
             -- bird03
-            x=1405,
+            x=1400,
             y=1,
             width=700,
             height=700,
@@ -40,16 +37,16 @@ SheetInfo.sheet =
         },
         {
             -- bird04
-            x=2107,
+            x=2100,
             y=1,
             width=700,
             height=700,
 
         },
     },
-    
-    sheetContentWidth = 2808,
-    sheetContentHeight = 702
+
+    sheetContentWidth = 2800,
+    sheetContentHeight = 700
 }
 
 SheetInfo.frameIndex =
