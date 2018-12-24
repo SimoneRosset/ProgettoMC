@@ -70,9 +70,9 @@ cloud3.x, cloud3.y = halfW*0.8, halfH*0.2
 cloud3.alpha=0.7
 
 	-- make a crate (off-screen), position it, and rotate slightly
-	balloon = display.newImageRect( "balloon.png", 45, 45 )
+	balloon = display.newImageRect( "balloon.png", 50, 50 )
 	balloon.x, balloon.y = halfW, halfH --questo coefficiente posiziona il palloncino ad un'altezza intermedia
-	physics.addBody( balloon  ) --{ density=1.0, friction=1, bounce=0.3 }
+	physics.addBody( balloon, { radius=25, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
 
 	--crate.rotation = 15
 
@@ -110,7 +110,7 @@ cloud3.alpha=0.7
 		local temp=math.random(20,150)
 		local cloud = display.newImageRect(world, cloudImages[math.random(#cloudImages)],temp,temp/2)
 		cloud.anchorX, cloud.anchorY = 0.5, 1
-		cloud.x, cloud.y = math.random(display.actualContentWidth), math.random(0, display.actualContentHeight*2)*-1
+		cloud.x, cloud.y = math.random(display.actualContentWidth), math.random(0, display.actualContentHeight*2)*math.random(-3,-1)
 
 
 		 --cloud._xScale = math.random()/2 + 0.75
@@ -186,7 +186,7 @@ end -- terminal velocity
 	-- find the difference between the hero and the display center
 	-- and move the world to compensate
 	local hx, hy = balloon:localToContent(0,0)
-	hx, hy = display.contentCenterX - hx, display.contentCenterY - hy
+	hx, hy = display.contentCenterX - hx, display.contentCenterY*1.3 - hy
 	world.y = world.y + hy
 
 end

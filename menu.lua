@@ -53,7 +53,7 @@ function scene:create( event )
 	titleLogo.x = display.contentCenterX
 	titleLogo.y = display.contentCenterY*0.7
 
-	local image = display.newImageRect( "balloon.png", 45, 45 )
+	local image = display.newImageRect( "balloon.png", 50, 50 )
 	image.x, image.y = display.contentCenterX,  display.contentCenterY
 	image.alpha= 0.7
 
