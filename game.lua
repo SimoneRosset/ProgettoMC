@@ -104,7 +104,21 @@ cloud3.alpha=0.7
 	world:insert( cloud2 )
 	world:insert( cloud3 )
 
-
+for _= 1, 6 do
+	local sheetData = { width = 50, height = 50, numFrames = 4, sheetContentWidth = 200, sheetContentHeight = 50 }
+	local sheet = graphics.newImageSheet( "birdSheet.png", sheetData )
+	local sequenceData = {
+		{ name = "fly", frames = { 1, 2, 3, 4 } , time = 300, loopCount = 0, loopDirection = "bounce" },
+	}
+	instance = display.newSprite( world, sheet, sequenceData )
+	instance.x, instance.y, instance.widht, instance.height = 0, math.random(0, display.actualContentHeight*2)*math.random(-1,0), 50, 50
+physics.addBody( instance, "dynamic", { radius = 25, density = 1, bounce = 0.1, friction =  1.0 } )
+instance:applyLinearImpulse(5,4)
+	instance:setSequence( "fly" )
+	instance:play()
+end
+-- b = display.newImageRect(world, "bird01.png",50,50)
+-- b.x,b.y=100,100
 	for _= 1, 6 do
 		local cloudImages = { "cloud.png", "cloud2.png" }
 		local temp=math.random(20,150)

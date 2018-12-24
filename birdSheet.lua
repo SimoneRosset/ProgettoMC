@@ -13,8 +13,8 @@ SheetInfo.sheet =
 
         {
             -- bird01
-            x=1,
-            y=1,
+            x=0,
+            y=0,
             width=700,
             height=700,
 
@@ -22,7 +22,7 @@ SheetInfo.sheet =
         {
             -- bird02
             x=700,
-            y=1,
+            y=0,
             width=700,
             height=700,
 
@@ -30,7 +30,7 @@ SheetInfo.sheet =
         {
             -- bird03
             x=1400,
-            y=1,
+            y=0,
             width=700,
             height=700,
 
@@ -38,7 +38,7 @@ SheetInfo.sheet =
         {
             -- bird04
             x=2100,
-            y=1,
+            y=0,
             width=700,
             height=700,
 
