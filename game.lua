@@ -186,7 +186,7 @@ end -- terminal velocity
 	-- find the difference between the hero and the display center
 	-- and move the world to compensate
 	local hx, hy = balloon:localToContent(0,0)
-	hx, hy = display.contentCenterX - hx, display.contentCenterY*1.3 - hy
+	hx, hy = display.contentCenterX - hx, display.contentCenterY - hy
 	world.y = world.y + hy
 
 end
