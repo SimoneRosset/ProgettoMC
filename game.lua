@@ -14,6 +14,8 @@ local pauseBtn
 local physics = require "physics"
 local birds = require "bird"
 local clouds = require "cloud"
+local balloon = require "balloon"
+
 
 --------------------------------------------
 
@@ -28,7 +30,7 @@ local score = display.newText( 0, display.contentCenterX, 50, native.systemFont,
 score:setFillColor( 0, 0, 0 )
 local secondi=3
 local time
-
+local fog
 
 local function onBackBtnRelease()
 	-- go to game.lua scene
@@ -69,6 +71,10 @@ end
 
 local function ready(event)
 	-- if secondi==0 then
+	pauseBtn:setLabel("pause")
+	score:setFillColor( 0, 0, 0 )
+
+display.remove( fog )
 	timer.cancel(watch)
 	timer.cancel(timerPause)
 	physics.start()
@@ -101,13 +107,11 @@ end
 local function onPauseBtnRelease()
 	-- go to game.lua scene
 	if pause and not press then
-		pauseBtn:setLabel("pause")
+		pauseBtn:setLabel("")
 		-- secondi=3
-		time = display.newText( 3, display.contentCenterX, display.contentCenterY, native.systemFont, 200 )
-		 time:setFillColor( 0, 0, 0 )
+
 		 time.text= secondi
 		watch=timer.performWithDelay( 1000, clock , secondi )
-
 		timerPause=timer.performWithDelay( 3000, ready, secondi )
 		-- time = display.newText( 0, display.contentCenterX, display.contentCenterY, native.systemFont, 200 )
 		-- time:setFillColor( 0, 0, 0 )
@@ -115,6 +119,17 @@ local function onPauseBtnRelease()
 		pause, press=false, true
 elseif not press then
 	pauseBtn:setLabel("start")
+	time = display.newText( "pause", display.contentCenterX, display.contentCenterY, native.systemFont, 100 )
+	 time:setFillColor( 0, 0, 0 )
+	 score:setFillColor( 0.3, 0.3, 0.3 )
+
+fog=display.newImageRect( "background.png", display.actualContentWidth, display.actualContentHeight )
+fog.anchorX = 0
+fog.anchorY = 0
+fog.x = 0 + display.screenOriginX
+fog.y = 0 + display.screenOriginY
+fog:setFillColor(0,0,0)
+fog.alpha=0.5
 	background:removeEventListener("touch", shift)
 timer.pause(timerNewBird)
 physics.pause()
@@ -124,20 +139,15 @@ end
 		-- indicates successful touch
 end
 
-
-
-
-
-
-local function offScreen(object)
-	local bounds = object.contentBounds
-	local sox, soy = display.screenOriginX, display.screenOriginY
-	if bounds.xMax < sox then return true end
-	if bounds.yMax < soy then return true end
-	if bounds.xMin > display.actualContentWidth - sox then return true end
-	if bounds.yMin > display.actualContentHeight - soy then return true end
-	return false
-end
+-- local function offScreen(object)
+-- 	local bounds = object.contentBounds
+-- 	local sox, soy = display.screenOriginX, display.screenOriginY
+-- 	if bounds.xMax < sox then return true end
+-- 	if bounds.yMax < soy then return true end
+-- 	if bounds.xMin > display.actualContentWidth - sox then return true end
+-- 	if bounds.yMin > display.actualContentHeight - soy then return true end
+-- 	return false
+-- end
 
 function scene:create( event )
 
@@ -188,9 +198,9 @@ function scene:create( event )
 	sky:setFillColor( 0.9)
 
 	-- make a crate (off-screen), position it, and rotate slightly
-	balloon = display.newImageRect( "balloon.png", 50, 50 )
-	balloon.x, balloon.y = halfW, halfH --questo coefficiente posiziona il palloncino ad un'altezza intermedia
-	physics.addBody( balloon, { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
+	-- balloon = display.newImageRect( "balloon.png", 50, 50 )
+	-- balloon.x, balloon.y = halfW, halfH --questo coefficiente posiziona il palloncino ad un'altezza intermedia
+	-- physics.addBody( balloon, { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
 
 	--crate.rotation = 15
 
@@ -202,6 +212,7 @@ function scene:create( event )
 	--  draw the grass at the very bottom of the screen
 	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.7 + display.screenOriginY
 	physics.addBody( grass,"static", {  density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
+
 
 	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
 	--grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
@@ -220,7 +231,11 @@ background:insert(pauseBtn)
 	world=display.newGroup()
 	sceneGroup:insert(world)
 	world:insert( grass )
-	world:insert( balloon )
+
+	balloon=balloon.new(world, display.contentCenterX,  display.contentCenterY)
+	physics.addBody( balloon, "dynamic", { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
+
+	-- world:insert( balloon )
 
 cloudg=display.newGroup()
 sceneGroup:insert(cloudg)
@@ -285,7 +300,23 @@ clouds.new(cloudg, math.random(display.actualContentWidth), math.random(0, displ
 	---------------------------------------------------------------------------------
 
 end
+local function onCollisionBalloon(self,event)
+	-- Runtime:removeEventListener("enterFrame", enterFrame)
+	-- background:removeEventListener("touch", shift)
+	-- balloon:applyLinearImpulse(0,4)
+	-- physics.removeBody( balloon )
+	-- balloon:setSequence("boom")
+	-- balloon:play()
+	--
+	--
+	--
+	-- hy = display.contentCenterY*1.3 - event.y
+	-- world.y = world.y + hy
+
+
+end
 local function enterFrame(event)
+
 	if not balloon.getLinearVelocity then return false end
 
 
@@ -377,11 +408,12 @@ function scene:show( event )
 		-- Called when the scene is still off screen and is about to move on screen
 		Runtime:addEventListener("enterFrame", enterFrame)
 		background:addEventListener("touch", shift)
-	 timerNewBird=timer.performWithDelay( math.random(1,2)*1000, newBird )
+		timerNewBird=timer.performWithDelay( math.random(1,2)*1500, newBird )
+		balloon.collision=onCollisionBalloon
+		balloon:addEventListener("collision")
 
 	elseif phase == "did" then
 		-- Called when the scene is now on screen
-
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
 		--physics.start()

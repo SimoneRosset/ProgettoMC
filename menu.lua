@@ -10,6 +10,8 @@ local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actua
 
 -- include Corona's "widget" library
 local widget = require "widget"
+local clouds = require "cloud"
+local balloon = require "balloon"
 
 --------------------------------------------
 
@@ -21,6 +23,8 @@ local highBtn
 local function onPlayBtnRelease()
 
 	-- go to game.lua scene
+	composer.removeScene( "menu")
+
 	composer.gotoScene( "game", "fade", 400 )
 
 	return true	-- indicates successful touch
@@ -28,6 +32,8 @@ end
 local function onHighBtnRelease()
 
 	-- go to game.lua scene
+	composer.removeScene( "menu")
+
 	composer.gotoScene( "game", "fade", 400 )
 
 	return true	-- indicates successful touch
@@ -52,20 +58,23 @@ function scene:create( event )
 	local titleLogo = display.newImageRect( "logo.png", 250, 60 )
 	titleLogo.x = display.contentCenterX
 	titleLogo.y = display.contentCenterY*0.7
+	
 
-	local image = display.newImageRect( "balloon.png", 50, 50 )
-	image.x, image.y = display.contentCenterX,  display.contentCenterY
-	image.alpha= 0.7
 
-	cloud1 = display.newImageRect( "cloud.png", 100, 45 )
-	cloud1.x, cloud1.y = halfW*0.5, halfH*0.3
-cloud1.alpha=0.7
-cloud2 = display.newImageRect( "cloud2.png", 85, 25 )
-cloud2.x, cloud2.y = halfW*1.5, halfH*0.5
-cloud2.alpha=0.7
-cloud3 = display.newImageRect( "cloud2.png", 150, 80 )
-cloud3.x, cloud3.y = halfW*0.8, halfH*0.2
-cloud3.alpha=0.7
+	-- local image = display.newImageRect( "balloon.png", 50, 50 )
+	-- image.x, image.y = display.contentCenterX,  display.contentCenterY
+	-- image.alpha= 0.7
+
+-- 	cloud1 = display.newImageRect( "cloud.png", 100, 45 )
+-- 	cloud1.x, cloud1.y = halfW*0.5, halfH*0.3
+-- cloud1.alpha=0.7
+-- cloud2 = display.newImageRect( "cloud2.png", 85, 25 )
+-- cloud2.x, cloud2.y = halfW*1.5, halfH*0.5
+-- cloud2.alpha=0.7
+-- cloud3 = display.newImageRect( "cloud2.png", 150, 80 )
+-- cloud3.x, cloud3.y = halfW*0.8, halfH*0.2
+-- cloud3.alpha=0.7
+
 
 	grass = display.newImageRect( "ground.png", screenW, screenH)
 	grass.anchorX = 0
@@ -101,10 +110,10 @@ cloud3.alpha=0.7
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
-	sceneGroup:insert( image )
-	sceneGroup:insert( cloud1 )
-	sceneGroup:insert( cloud2 )
-	sceneGroup:insert( cloud3 )
+	-- sceneGroup:insert( image )
+	-- sceneGroup:insert( cloud1 )
+	-- sceneGroup:insert( cloud2 )
+	-- sceneGroup:insert( cloud3 )
 	sceneGroup:insert( grass )
 	sceneGroup:insert( titleLogo )
 	sceneGroup:insert( playBtn )
@@ -116,10 +125,18 @@ function scene:show( event )
 	local phase = event.phase
 
 	if phase == "will" then
+		for _=1,3 do
+			clouds.new(sceneGroup, math.random(display.actualContentWidth), math.random(0, display.actualContentHeight/4.5))
+
+		end
+		balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY)
+
+
 		-- Called when the scene is still off screen and is about to move on screen
 	elseif phase == "did" then
 		-- Called when the scene is now on screen
 		--
+
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
 	end
