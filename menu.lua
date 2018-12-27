@@ -34,7 +34,7 @@ local function onHighBtnRelease()
 	-- go to game.lua scene
 	composer.removeScene( "menu")
 
-	composer.gotoScene( "game", "fade", 400 )
+	composer.gotoScene( "highScores", "fade", 400 )
 
 	return true	-- indicates successful touch
 end
