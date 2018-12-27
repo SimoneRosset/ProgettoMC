@@ -6,20 +6,124 @@
 
 local composer = require( "composer" )
 local scene = composer.newScene()
-
+local widget = require "widget"
+local pause, press=false, false
+local backBtn
+local pauseBtn
 -- include Corona's "physics" library
 local physics = require "physics"
+local birds = require "bird"
+local clouds = require "cloud"
 
 --------------------------------------------
 
 -- forward declarations and other locals
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
+local actualScore=0
 
 ----------------------------aggiunte da codice precedente-----------------------
-local velocity=2
-local move=1
+local velocity=220
+local move=2
 local score = display.newText( 0, display.contentCenterX, 50, native.systemFont, 50 )
 score:setFillColor( 0, 0, 0 )
+local secondi=3
+local time
+
+
+local function onBackBtnRelease()
+	-- go to game.lua scene
+display.remove( time )
+	physics.stop()
+	timer.cancel( timerNewBird )
+	composer.removeScene( "game")
+	composer.gotoScene( "menu", "fade", 400 )
+
+	return true	-- indicates successful touch
+end
+local function shift(event)
+
+	if event.phase == "began" then
+				held=true;
+
+		elseif event.phase == "moved" and held then
+			if balloon.x==event.x then
+						balloon.rotation = 0
+				end
+			if balloon.x<event.x then
+					balloon.x=balloon.x+move
+						balloon.rotation = (event.x-balloon.x)/5 --accompagna lo spostamento con una inclinazione
+				end
+					if balloon.x>event.x then
+							balloon.x=balloon.x-move
+							balloon.rotation = (event.x-balloon.x)/5
+
+						end
+
+		elseif event.phase == "ended" or event.phase == "cancelled" then
+				held=false
+				balloon.rotation = 0
+
+		else held=false
+		end
+end
+
+local function ready(event)
+	-- if secondi==0 then
+	timer.cancel(watch)
+	timer.cancel(timerPause)
+	physics.start()
+ display.remove(time)
+	timer.resume(timerNewBird)
+	background:addEventListener("touch", shift)
+	press=false
+	secondi=3
+
+	-- secondi=3
+-- else
+	-- time = display.newText( 0, display.contentCenterX, display.contentCenterY, native.systemFont, 200 )
+	-- time:setFillColor( 0, 0, 0 )
+	-- time.text= secondi
+	-- timerPause=timer.performWithDelay( 1000, ready, secondi )
+-- end
+end
+
+
+ local function clock(event)
+	 if secondi>0 then
+		 secondi=secondi-1
+
+	 	time.text= secondi
+	else 	timer.cancel(timerPause)
+
+ end
+end
+
+local function onPauseBtnRelease()
+	-- go to game.lua scene
+	if pause and not press then
+		pauseBtn:setLabel("pause")
+		-- secondi=3
+		time = display.newText( 3, display.contentCenterX, display.contentCenterY, native.systemFont, 200 )
+		 time:setFillColor( 0, 0, 0 )
+		 time.text= secondi
+		watch=timer.performWithDelay( 1000, clock , secondi )
+
+		timerPause=timer.performWithDelay( 3000, ready, secondi )
+		-- time = display.newText( 0, display.contentCenterX, display.contentCenterY, native.systemFont, 200 )
+		-- time:setFillColor( 0, 0, 0 )
+		-- background:insert(time)
+		pause, press=false, true
+elseif not press then
+	pauseBtn:setLabel("start")
+	background:removeEventListener("touch", shift)
+timer.pause(timerNewBird)
+physics.pause()
+pause,press=true, false
+end
+
+		-- indicates successful touch
+end
+
 
 
 
@@ -44,13 +148,37 @@ function scene:create( event )
 
 	local sceneGroup = self.view
 
+	backBtn = widget.newButton{
+		label="back",
+		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
+		default="button.png",
+		over="button-over.png",
+		width=154, height=40,
+		onRelease = onBackBtnRelease	-- event listener function
+	}
+	backBtn.x = display.contentCenterX*0.2
+	backBtn.y = display.contentCenterY-display.contentCenterY*1.1
+	sceneGroup:insert( backBtn )
+
+	pauseBtn = widget.newButton{
+		label="pause",
+		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
+		default="button.png",
+		over="button-over.png",
+		width=154, height=40,
+		onRelease = onPauseBtnRelease	-- event listener function
+	}
+	pauseBtn.x = display.contentCenterX*1.8
+	pauseBtn.y = display.contentCenterY-display.contentCenterY*1.1
+	sceneGroup:insert( pauseBtn )
+
 
 	-- We need physics started to add bodies, but we don't want the simulaton
  	-- running until the scene is on the screen.
 	--physics.start()
 	--physics.pause()
 	physics.start()
-	physics.setGravity(0,-1)
+	physics.setGravity(0,5)
 
 	sky = display.newImageRect( "background.png", screenW, screenH )
 	sky.anchorX = 0
@@ -59,30 +187,21 @@ function scene:create( event )
 	sky.y = 0 + display.screenOriginY
 	sky:setFillColor( 0.9)
 
-	cloud1 = display.newImageRect( "cloud.png", 100, 45 )
-	cloud1.x, cloud1.y = halfW*0.5, halfH*0.3
-cloud1.alpha=0.7
-cloud2 = display.newImageRect( "cloud2.png", 85, 25 )
-cloud2.x, cloud2.y = halfW*1.5, halfH*0.5
-cloud2.alpha=0.7
-cloud3 = display.newImageRect( "cloud2.png", 150, 80 )
-cloud3.x, cloud3.y = halfW*0.8, halfH*0.2
-cloud3.alpha=0.7
-
 	-- make a crate (off-screen), position it, and rotate slightly
 	balloon = display.newImageRect( "balloon.png", 50, 50 )
 	balloon.x, balloon.y = halfW, halfH --questo coefficiente posiziona il palloncino ad un'altezza intermedia
-	physics.addBody( balloon, { radius=25, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
+	physics.addBody( balloon, { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
 
 	--crate.rotation = 15
 
 	-- add physics to the crate
 	-- create a grass object and add physics (with custom shape)
-	grass = display.newImageRect( "ground.png", screenW, screenH*0.3 )
+	grass = display.newImageRect( "ground.png", screenW, screenH )
 	grass.anchorX = 0
 	grass.anchorY = 1
 	--  draw the grass at the very bottom of the screen
-	grass.x, grass.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
+	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.7 + display.screenOriginY
+	physics.addBody( grass,"static", {  density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
 
 	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
 	--grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
@@ -93,45 +212,45 @@ cloud3.alpha=0.7
 	--sceneGroup:insert( balloon )
 	background= display.newGroup()
 	sceneGroup:insert(background)
-	world=display.newGroup()
-	sceneGroup:insert(world)
 	background:insert( sky )
 	background:insert( score )
+background:insert(backBtn)
+background:insert(pauseBtn)
 
+	world=display.newGroup()
+	sceneGroup:insert(world)
 	world:insert( grass )
 	world:insert( balloon )
-	world:insert( cloud1 )
-	world:insert( cloud2 )
-	world:insert( cloud3 )
 
-for _= 1, 6 do
-	local sheetData = { width = 50, height = 50, numFrames = 4, sheetContentWidth = 200, sheetContentHeight = 50 }
-	local sheet = graphics.newImageSheet( "birdSheet.png", sheetData )
-	local sequenceData = {
-		{ name = "fly", frames = { 1, 2, 3, 4 } , time = 300, loopCount = 0, loopDirection = "bounce" },
-	}
-	instance = display.newSprite( world, sheet, sequenceData )
-	instance.x, instance.y, instance.widht, instance.height = 0, math.random(0, display.actualContentHeight*2)*math.random(-1,0), 50, 50
-physics.addBody( instance, "dynamic", { radius = 25, density = 1, bounce = 0.1, friction =  1.0 } )
-instance:applyLinearImpulse(5,4)
-	instance:setSequence( "fly" )
-	instance:play()
-end
+cloudg=display.newGroup()
+sceneGroup:insert(cloudg)
+world:insert( cloudg )
+
+birdg=display.newGroup()
+sceneGroup:insert(birdg)
+world:insert( birdg )
+
+
+
+
+
+
 -- b = display.newImageRect(world, "bird01.png",50,50)
 -- b.x,b.y=100,100
-	for _= 1, 6 do
-		local cloudImages = { "cloud.png", "cloud2.png" }
-		local temp=math.random(20,150)
-		local cloud = display.newImageRect(world, cloudImages[math.random(#cloudImages)],temp,temp/2)
-		cloud.anchorX, cloud.anchorY = 0.5, 1
-		cloud.x, cloud.y = math.random(display.actualContentWidth), math.random(0, display.actualContentHeight*2)*math.random(-3,-1)
-
-
+	for _= 1, 10 do
+		-- local cloudImages = { "cloud.png", "cloud2.png" }
+		-- local temp=math.random(20,150)
+		-- local cloud = display.newImageRect(cloudg, cloudImages[math.random(#cloudImages)],temp,temp/2)
+		-- cloud.anchorX, cloud.anchorY = 0.5, 1
+		-- cloud.x, cloud.y = math.random(display.actualContentWidth), math.random(0, display.actualContentHeight*2)*math.random(-3,-1)
+clouds.new(cloudg, math.random(display.actualContentWidth), math.random(0, display.actualContentHeight)*math.random(-3,-1))
 		 --cloud._xScale = math.random()/2 + 0.75
 		 --cloud.xScale, cloud.yScale = cloud._xScale, cloud._xScale
 		--cloud:setFillColor(color.hex2rgb("6D9DC5"))
 	end
-
+-- for _=1,2 do
+-- 	birds.new(birdg, (math.random(1,2)-1)*screenW, balloon.y-display.actualContentHeight/(_*2))
+-- end
 
 --terrain={}
 --terrain[1] = sky
@@ -168,23 +287,61 @@ end
 end
 local function enterFrame(event)
 	if not balloon.getLinearVelocity then return false end
+
+
+vx,vy=balloon:getLinearVelocity()
+if vy>=-velocity then
+	vy=vy-(vy+velocity)/20
+balloon:setLinearVelocity(0,vy)
+else
+	balloon:setLinearVelocity(0,-velocity)
+
+end
+for i=1, birdg.numChildren do
+	if birdg[i].sequence=="flyToRight"    then
+		-- birdg[i]:setSequence( "flyToRight" )
+	birdg[i]:setLinearVelocity(velocity,-1)
+
+else
+	-- birdg[i]:setSequence( "flyToLeft" )
+
+	birdg[i]:setLinearVelocity(-velocity,-1)
+
+end
+end
+if -(balloon.y-halfH)/100>actualScore then
 	score.text = -((balloon.y-halfH)/100-(balloon.y-halfH)%100/100)
-
-local vx,vy=balloon:getLinearVelocity()
-if -vy > velocity*100 then
-	physics.setGravity( 0, 0 )
-
-end -- terminal velocity
+	actualScore=-((balloon.y-halfH)/100-(balloon.y-halfH)%100/100)
+else
+	score.text=actualScore
+end
+-- if -vy > velocity*100 then
+-- 	physics.setGravity( 0, 0 )
+--
+-- end -- terminal velocity
 	--balloon:setLinearVelocity(0,vy)
 	-- recycle old buildings (pass 1)
-		for i = 3, world.numChildren do
-			local y = world[i].y --and world[i].contentBounds.xMax or 0
+		for i = 1, cloudg.numChildren do
+			local y = cloudg[i].y --and world[i].contentBounds.xMax or 0
 			--if buildings[i] then buildings[i]:translate(-vx/topSpeed*6,0) end
 			if y > balloon.y+display.actualContentHeight then
 				--display.remove(world[i])
-				world[i]:translate(math.random(-50, 50), math.random(display.actualContentHeight, display.actualContentHeight*3)*-2) --math.random(display.actualContentWidth), math.random(display.actualContentHeight)*-2
+
+
+				cloudg[i]:translate(0, math.random(display.actualContentHeight,display.actualContentHeight*2)*-2) --math.random(display.actualContentWidth), math.random(display.actualContentHeight)*-2
+        cloudg[i].x=math.random(0, display.actualContentWidth)
 			end
 		end
+
+		for i=1, birdg.numChildren do
+if not birdg[i]==nil then
+			if birdg[i].y> balloon.y+display.actualContentHeight then
+        display.remove( birdg[i] )
+			 birdg:remove(birdg[i])
+			 birdg[i]=nil
+		 end
+	 end
+ end
 	-- -- recycle old buildings (pass 2)
 	-- 	for i = 1, background.numChildren do
 	-- 		-- background[i].rotation = world.rotation * 0.85
@@ -195,41 +352,21 @@ end -- terminal velocity
 	-- 			background[i]:translate(display.actualContentWidth*3,0)
 	-- 		end
 	-- 	end
-
+velocity=velocity+(actualScore/500)
 	-- easiest way to scroll a map based on a character
 	-- find the difference between the hero and the display center
 	-- and move the world to compensate
 	local hx, hy = balloon:localToContent(0,0)
-	hx, hy = display.contentCenterX - hx, display.contentCenterY - hy
+	hx, hy = display.contentCenterX - hx, display.contentCenterY*1.3 - hy
 	world.y = world.y + hy
 
 end
-local function shift(event)
+local function newBird(event)
+	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
+	timerNewBird=timer.performWithDelay( math.random(1,2)*400, newBird )
 
-	if event.phase == "began" then
-				held=true;
-
-		elseif event.phase == "moved" and held then
-			if balloon.x==event.x then
-						balloon.rotation = 0
-				end
-			if balloon.x<event.x then
-					balloon.x=balloon.x+move
-						balloon.rotation = (event.x-balloon.x)/5 --accompagna lo spostamento con una inclinazione
-				end
-					if balloon.x>event.x then
-							balloon.x=balloon.x-move
-							balloon.rotation = (event.x-balloon.x)/5
-
-						end
-
-		elseif event.phase == "ended" or event.phase == "cancelled" then
-				held=false
-				balloon.rotation = 0
-
-		else held=false
-		end
 end
+
 
 
 function scene:show( event )
@@ -240,6 +377,8 @@ function scene:show( event )
 		-- Called when the scene is still off screen and is about to move on screen
 		Runtime:addEventListener("enterFrame", enterFrame)
 		background:addEventListener("touch", shift)
+	 timerNewBird=timer.performWithDelay( math.random(1,2)*1000, newBird )
+
 	elseif phase == "did" then
 		-- Called when the scene is now on screen
 
@@ -262,12 +401,18 @@ function scene:hide( event )
 		--physics.stop()
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
+
 	end
 
 end
 
 function scene:destroy( event )
-
+	if backBtn then
+		backBtn:removeSelf()	-- widgets must be manually removed
+		backBtn = nil
+		pauseBtn:removeSelf()	-- widgets must be manually removed
+		pauseBtn = nil
+	end
 	-- Called prior to the removal of scene's "view" (sceneGroup)
 	--
 	-- INSERT code here to cleanup the scene

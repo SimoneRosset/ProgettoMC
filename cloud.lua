@@ -1,7 +1,3 @@
--- Module/class for platformer enemy
--- Use this as a template to build an in-game enemy
-
--- Define module
 local M = {}
 
 local composer = require( "composer" )
@@ -13,27 +9,35 @@ function M.new( parent, x, y )
 	-- Get scene and sounds
 	local scene = composer.getScene( composer.getSceneName( "current" ) )
 	--local sounds = scene.sounds
+
 	-- Store map placement and hide placeholder
 
 	-- Load spritesheet
-	local sheetData = { width = 50, height = 50, numFrames = 8, sheetContentWidth = 200, sheetContentHeight = 100 }
-	local sheet = graphics.newImageSheet( "birdSheet.png", sheetData )
+	local sheetData = { width = 150, height = 100, numFrames = 15, sheetContentWidth = 750, sheetContentHeight = 300 }
+	local sheet = graphics.newImageSheet( "cloudSheet.png", sheetData )
 	local sequenceData = {
-		{ name = "flyToRight", frames = { 1, 2, 3, 4 } , time = 300, loopCount = 0, loopDirection = "bounce" },
-		{ name = "flyToLeft", frames = { 8, 7, 6, 5 } , time = 300, loopCount = 0, loopDirection = "bounce" },
+		{ name = "type1", frames = { 1}  },
+		{ name = "type2", frames = { 2 }  },
+		{ name = "type3", frames = { 3 }  },
+		{ name = "type4", frames = { 4 }  },
+		{ name = "type5", frames = { 5 }  },
+		{ name = "type6", frames = { 6 }  },
+		{ name = "type7", frames = { 7 }  },
+		{ name = "type8", frames = { 8} },
+		{ name = "type9", frames = { 9 }  },
+		{ name = "type10", frames = { 10} },
+		{ name = "type11", frames = { 11 }  },
+		{ name = "type12", frames = { 12 }  },
+		{ name = "type13", frames = { 13 }  },
+		{ name = "type14", frames = { 14 } },
+		{ name = "type15", frames = { 15 }  },
+
 	}
-	bird = display.newSprite( parent, sheet, sequenceData )
-	bird.x, bird.y, bird.width,bird.height  = x, y, 50, 50
-	physics.addBody( bird, "dynamic", { radius = 10, density = 1, bounce = 0.1, friction =  1.0 } )
-
-	if x==0 then
-	bird:setSequence( "flyToRight" )
-
-else
-	bird:setSequence( "flyToLeft" )
-end
-	bird:play()
-
+	cloud = display.newSprite( parent, sheet, sequenceData )
+	cloud.x, cloud.y, cloud.width,cloud.height  = x, y, 150, 100
+cloudTypes = { "type1", "type2","type3","type4", "type5","type6","type7", "type2","type8","type9", "type10","type11","type12", "type13","type14","type15"  }
+cloud:setSequence(cloudTypes[math.random(#cloudTypes)])
+	cloud:play()
 
 	-- -- Add physics
 	-- physics.addBody( instance, "dynamic", { radius = 350, density = 1, bounce = 0.1, friction =  1.0 } )
@@ -106,9 +110,9 @@ end
 	-- instance:addEventListener( "preCollision" )
 
 	-- Return instance
-	bird.name = "bird"
-	bird.type = "bird"
-	return bird
+	cloud.name = "cloud"
+	cloud.type = "cloud"
+	return cloud
 end
 
 return M

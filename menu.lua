@@ -67,11 +67,11 @@ cloud3 = display.newImageRect( "cloud2.png", 150, 80 )
 cloud3.x, cloud3.y = halfW*0.8, halfH*0.2
 cloud3.alpha=0.7
 
-	grass = display.newImageRect( "ground.png", screenW, screenH*0.3 )
+	grass = display.newImageRect( "ground.png", screenW, screenH)
 	grass.anchorX = 0
 	grass.anchorY = 1
 	--  draw the grass at the very bottom of the screen
-	grass.x, grass.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
+	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.7 + display.screenOriginY
   grass.alpha=0.7
 	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
 	--grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
