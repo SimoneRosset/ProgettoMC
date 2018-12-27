@@ -16,11 +16,11 @@ function M.new( parent, x, y )
 	-- Store map placement and hide placeholder
 
 	-- Load spritesheet
-	local sheetData = { width = 50, height = 50, numFrames = 8, sheetContentWidth = 400, sheetContentHeight = 50 }
+	local sheetData = { width = 50, height = 50, numFrames = 9, sheetContentWidth = 450, sheetContentHeight = 50 }
 	local sheet = graphics.newImageSheet( "balloonSheet.png", sheetData )
 	local sequenceData = {
 		{ name = "balloon", frames = { 1 } , time = 300, loopCount = 0 },
-		{ name = "boom", frames = { 1,2,3,4,5,6,7,8 } , time = 300, loopCount = 1 },
+		{ name = "boom", frames = { 1,2,3,4,5,6,7,8,9 } , time = 300, loopCount = 1 },
 	}
 	balloon = display.newSprite( parent, sheet, sequenceData )
 	balloon.x, balloon.y, balloon.width,balloon.height  = x, y, 50, 50

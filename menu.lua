@@ -57,8 +57,8 @@ function scene:create( event )
 	-- create/position logo/title image on upper-half of the screen
 	local titleLogo = display.newImageRect( "logo.png", 250, 60 )
 	titleLogo.x = display.contentCenterX
-	titleLogo.y = display.contentCenterY*0.7
-	
+	titleLogo.y = display.contentCenterY*0.75
+
 
 
 	-- local image = display.newImageRect( "balloon.png", 50, 50 )
@@ -80,7 +80,7 @@ function scene:create( event )
 	grass.anchorX = 0
 	grass.anchorY = 1
 	--  draw the grass at the very bottom of the screen
-	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.7 + display.screenOriginY
+	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.8 + display.screenOriginY
   grass.alpha=0.7
 	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
 	--grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
@@ -95,7 +95,7 @@ function scene:create( event )
 		onRelease = onPlayBtnRelease	-- event listener function
 	}
 	playBtn.x = display.contentCenterX
-	playBtn.y = display.contentCenterY*1.2
+	playBtn.y = display.contentCenterY*0.95
 
 	highBtn = widget.newButton{
 		label="highScore",
@@ -106,7 +106,7 @@ function scene:create( event )
 		onRelease = onHighBtnRelease	-- event listener function
 	}
 	highBtn.x = display.contentCenterX
-	highBtn.y = display.contentCenterY*1.35
+	highBtn.y = display.contentCenterY*1.1
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
@@ -129,7 +129,8 @@ function scene:show( event )
 			clouds.new(sceneGroup, math.random(display.actualContentWidth), math.random(0, display.actualContentHeight/4.5))
 
 		end
-		balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY)
+		balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3).alpha=0.7
+
 
 
 		-- Called when the scene is still off screen and is about to move on screen
