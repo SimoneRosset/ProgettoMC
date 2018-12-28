@@ -7,7 +7,7 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
-
+local bestScore
 -- include Corona's "widget" library
 local widget = require "widget"
 local clouds = require "cloud"

@@ -2,6 +2,7 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 local widget = require "widget"
+local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -31,7 +32,7 @@ local function loadScores()
 end
 local function saveScores()
 
-    for i = #scoresTable, 11, -1 do
+    for i = #scoresTable, 6, -1 do
         table.remove( scoresTable, i )
     end
 
@@ -54,6 +55,8 @@ end
 function scene:create( event )
 
     local sceneGroup = self.view
+
+
     -- Code here runs when the scene is first created but has not yet appeared on screen
     -- Load the previous scores
         loadScores()
@@ -67,26 +70,40 @@ function scene:create( event )
     table.sort( scoresTable, compare )
     -- Save the scores
     saveScores()
+    composer.setVariable( "record", scoresTable[1] )
+
 
     local background = display.newImageRect( sceneGroup, "background.png", 800, 1400 )
    background.x = display.contentCenterX
    background.y = display.contentCenterY
+   grass = display.newImageRect( sceneGroup, "ground.png", screenW, screenH)
+  grass.anchorX = 0
+  grass.anchorY = 1
+  --  draw the grass at the very bottom of the screen
+  grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.8 + display.screenOriginY
+   grass.alpha=0.7
 
    local highScoresHeader = display.newText( sceneGroup, "highScores:", display.contentCenterX, 50, native.systemFont, 44 )
    highScoresHeader:setFillColor(0,0,0)
    for i = 1, 5 do
            if ( scoresTable[i] ) then
-               local yPos = 100 + ( i * 56 )
+               local yPos = 60 + ( i * 56 )
 
-               local rankNum = display.newText( sceneGroup, i .. ")", display.contentCenterX-50, yPos, native.systemFont, 36 )
+               local rankNum = display.newText( sceneGroup, i .. ") ".. scoresTable[i], display.contentCenterX, yPos, native.systemFont, 30 )
                    rankNum:setFillColor( 0 )
-                   rankNum.anchorX = 1
+                   -- rankNum.anchorX = 0
 
-                   local thisScore = display.newText( sceneGroup, scoresTable[i], display.contentCenterX-30, yPos, native.systemFont, 36 )
-                   thisScore:setFillColor(0)
 
-                   thisScore.anchorX = 0
            end
+       end
+
+       local function onBackBtnRelease()
+       	-- go to game.lua scene
+
+       	composer.removeScene( "highScores")
+       	composer.gotoScene( "menu", "fade", 400 )
+
+       	return true	-- indicates successful touch
        end
 
        local backBtn = widget.newButton{
@@ -95,14 +112,12 @@ function scene:create( event )
          default="button.png",
          over="button-over.png",
          width=154, height=40,
-         -- onRelease = onBackBtnRelease	-- event listener function
+         onRelease = onBackBtnRelease	-- event listener function
        }
        backBtn.x = display.contentCenterX*0.2
        backBtn.y = display.contentCenterY-display.contentCenterY*1.1
        sceneGroup:insert( backBtn )
 
-   backBtn:setFillColor( 0 )
-   backBtn:addEventListener( "tap", gotoMenu )
 end
 
 

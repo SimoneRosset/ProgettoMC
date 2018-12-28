@@ -16,23 +16,48 @@ local physics = require "physics"
 local birds = require "bird"
 local clouds = require "cloud"
 local balloon = require "balloon"
+local json = require( "json" )
 
+
+local scoresTable = {}
+
+local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
+
+
+    local file = io.open( filePath, "r" )
+
+    if file then
+        local contents = file:read( "*a" )
+        io.close( file )
+        scoresTable = json.decode( contents )
+    end
+
+    if ( scoresTable == nil or #scoresTable == 0 ) then
+        scoresTable = { 0, 0, 0, 0, 0}
+    end
 
 --------------------------------------------
 
 -- forward declarations and other locals
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 local actualScore=0
-
+local actualRecord=scoresTable[1]
 ----------------------------aggiunte da codice precedente-----------------------
 local velocity=220
 local move=2
-local score = display.newText( 0, display.contentCenterX, 50, native.systemFont, 50 )
+local score = display.newText( 0, display.contentCenterX, 40, native.systemFont, 50 )
 score:setFillColor( 0, 0, 0 )
+local record = display.newText( "record: "..actualRecord, display.contentCenterX, 70, native.systemFont, 15 )
+record:setFillColor( 0, 0, 0 )
+record.alpha=0.6
 local secondi=3
 local time
 local fog
+local function bestScore()
+    actualScore=actualRecord
+		record.text="record: "..actualRecord
 
+end
 local function onBackBtnRelease()
 	-- go to game.lua scene
 	display.remove(fog)
@@ -238,6 +263,8 @@ function scene:create( event )
 	sceneGroup:insert(background)
 	background:insert( sky )
 	background:insert( score )
+	background:insert( record )
+
 background:insert(backBtn)
 background:insert(pauseBtn)
 
@@ -343,6 +370,12 @@ local function onCollisionBalloon(self,event)
 	time = display.newText( "score: " .. actualScore, display.contentCenterX, display.contentCenterY, native.systemFont, 50 )
 	 time:setFillColor( 0, 0, 0 )
 	 composer.setVariable( "finalScore", actualScore )
+	 record.x,record.y=display.contentCenterX,display.contentCenterY*1.15
+	 record.alpha=1
+	 if actualRecord>composer.getVariable( "record" ) then
+		 record.text="newRecord: "..actualRecord.."!"
+
+	 end
 
 pauseBtn:toBack()
 
@@ -409,6 +442,9 @@ if not birdg[i]==nil then
 			 birdg[i]=nil
 		 end
 	 end
+ end
+ if actualScore>actualRecord then
+	 bestScore()
  end
 	-- -- recycle old buildings (pass 2)
 	-- 	for i = 1, background.numChildren do
