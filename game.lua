@@ -20,7 +20,7 @@ local json = require( "json" )
 
 
 local scoresTable = {}
-
+local corda={}
 local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
 
 
@@ -275,6 +275,9 @@ background:insert(pauseBtn)
 	balloon=balloon.new(world, display.contentCenterX,  display.contentCenterY*1.3)
 
 	-- world:insert( balloon )
+cordag=display.newGroup()
+sceneGroup:insert(cordag)
+world:insert(cordag)
 
 cloudg=display.newGroup()
 sceneGroup:insert(cloudg)
@@ -285,6 +288,13 @@ sceneGroup:insert(birdg)
 world:insert( birdg )
 
 
+-- corda[1]=display.newImageRect( cordag, "corda.png", 100,40 )
+-- pivot=physics.newJoint( "rope",corda[1] , balloon,0,0,0,0 )
+--
+-- for i=2,(display.contentCenterY*0.1) do
+-- 	corda[i]=display.newImageRect( cordag, "corda.png", 10,20 )
+-- 	pivot=physics.newJoint( "rope", corda[i-1], corda[i],0,2,0,2)
+-- end
 
 
 
@@ -372,10 +382,10 @@ local function onCollisionBalloon(self,event)
 	 composer.setVariable( "finalScore", actualScore )
 	 record.x,record.y=display.contentCenterX,display.contentCenterY*1.15
 	 record.alpha=1
-	 if actualRecord>composer.getVariable( "record" ) then
-		 record.text="newRecord: "..actualRecord.."!"
-
-	 end
+	 -- if actualRecord>composer.getVariable( "record" ) then
+		--  record.text="newRecord: "..actualRecord.."!"
+	 --
+	 -- end
 
 pauseBtn:toBack()
 
@@ -485,6 +495,7 @@ function scene:show( event )
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
 		--physics.start()
+
 		physics.start()
 		physics.setGravity(0,5)
 		physics.addBody( balloon, "dynamic", { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }

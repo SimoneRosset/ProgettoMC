@@ -3,6 +3,7 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 local widget = require "widget"
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
+local clouds = require "cloud"
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -76,13 +77,18 @@ function scene:create( event )
     local background = display.newImageRect( sceneGroup, "background.png", 800, 1400 )
    background.x = display.contentCenterX
    background.y = display.contentCenterY
+   background:setFillColor( 0.7)
+
    grass = display.newImageRect( sceneGroup, "ground.png", screenW, screenH)
   grass.anchorX = 0
   grass.anchorY = 1
   --  draw the grass at the very bottom of the screen
   grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.8 + display.screenOriginY
    grass.alpha=0.7
+   for _=1,3 do
+     clouds.new(sceneGroup, math.random(display.actualContentWidth), math.random(0, display.actualContentHeight/4.5))
 
+   end
    local highScoresHeader = display.newText( sceneGroup, "highScores:", display.contentCenterX, 50, native.systemFont, 44 )
    highScoresHeader:setFillColor(0,0,0)
    for i = 1, 5 do

@@ -11,7 +11,10 @@ local bestScore
 -- include Corona's "widget" library
 local widget = require "widget"
 local clouds = require "cloud"
+local birds = require "bird"
+
 local balloon = require "balloon"
+local corda={}
 
 --------------------------------------------
 
@@ -23,6 +26,10 @@ local highBtn
 local function onPlayBtnRelease()
 
 	-- go to game.lua scene
+	timer.cancel(timerNewBird)
+
+	Runtime:removeEventListener("enterFrame", enterFrame)
+
 	composer.removeScene( "menu")
 
 	composer.gotoScene( "game", "fade", 400 )
@@ -32,6 +39,10 @@ end
 local function onHighBtnRelease()
 
 	-- go to game.lua scene
+	timer.cancel(timerNewBird)
+
+	Runtime:removeEventListener("enterFrame", enterFrame)
+
 	composer.removeScene( "menu")
 
 	composer.gotoScene( "highScores", "fade", 400 )
@@ -110,6 +121,7 @@ function scene:create( event )
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
+
 	-- sceneGroup:insert( image )
 	-- sceneGroup:insert( cloud1 )
 	-- sceneGroup:insert( cloud2 )
@@ -119,7 +131,45 @@ function scene:create( event )
 	sceneGroup:insert( playBtn )
 	sceneGroup:insert( highBtn )
 end
+local function newBird(event)
 
+	birds.new(birdgroup, (math.random(1,2)-1)*screenW, math.random(0,display.actualContentHeight/4)).alpha=0.8
+	timerNewBird=timer.performWithDelay( math.random(1,2)*2000, newBird )
+
+end
+local function offScreen(object)
+	local bounds = object.contentBounds
+	local sox = display.screenOriginX
+	if bounds.xMax < sox then return true end
+	if bounds.xMin > display.actualContentWidth - sox then return true end
+	return false
+end
+local function enterFrame(event)
+			for i=1, birdgroup.numChildren do
+				if birdgroup[i].sequence=="flyToRight"    then
+					-- birdg[i]:setSequence( "flyToRight" )
+				birdgroup[i]:setLinearVelocity(200,0)
+
+			else
+				-- birdg[i]:setSequence( "flyToLeft" )
+
+				birdgroup[i]:setLinearVelocity(-200,0)
+
+
+			end
+			if offScreen(birdgroup[i])==true then
+				display.remove( birdgroup[i] )
+			 birdgroup:remove(birdgroup[i])
+			 birdgroup[i]=nil
+	 end
+
+		end
+
+			-- INSERT code here to make the scene come alive
+			-- e.g. start timers, begin animation, play audio, etc.
+
+
+end
 function scene:show( event )
 	local sceneGroup = self.view
 	local phase = event.phase
@@ -129,7 +179,18 @@ function scene:show( event )
 			clouds.new(sceneGroup, math.random(display.actualContentWidth), math.random(0, display.actualContentHeight/4.5))
 
 		end
-		balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3).alpha=0.7
+
+	local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
+	balloon.alpha=0.7
+for i=1,(display.contentCenterY*0.1) do
+	corda[i]=display.newImageRect( sceneGroup, "corda.png", 2,4 )
+end
+corda[1].x,corda[1].y=balloon.x,balloon.y+25
+balloon:toFront()
+for i=2,(display.contentCenterY*0.1) do
+	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
+
+end
 
 
 
@@ -137,10 +198,17 @@ function scene:show( event )
 	elseif phase == "did" then
 		-- Called when the scene is now on screen
 		--
+		birdgroup=display.newGroup()
 
-		-- INSERT code here to make the scene come alive
-		-- e.g. start timers, begin animation, play audio, etc.
-	end
+			sceneGroup:insert( birdgroup )
+
+		physics.start()
+		-- physics.setGravity(0,0)
+		timerNewBird=timer.performWithDelay( math.random(1,2)*2000, newBird )
+
+		Runtime:addEventListener("enterFrame", enterFrame)
+
+end
 end
 
 function scene:hide( event )
@@ -150,10 +218,18 @@ function scene:hide( event )
 	if event.phase == "will" then
 		-- Called when the scene is on screen and is about to move off screen
 		--
+
+		timer.cancel(timerNewBird)
+		physics.stop()
+
 		-- INSERT code here to pause the scene
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
+
+		Runtime:removeEventListener("enterFrame", enterFrame)
+
+	composer.removeScene("menu")
 	end
 end
 
