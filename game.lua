@@ -334,12 +334,16 @@ local function onCollisionBalloon(self,event)
 		width=154, height=40,
 		onRelease = onRestartBtnRelease	-- event listener function
 	}
+
 	restartBtn.x = display.contentCenterX
 	restartBtn.y = display.contentCenterY*1.3
 	background:insert( restartBtn )
+
 	background:remove(score)
 	time = display.newText( "score: " .. actualScore, display.contentCenterX, display.contentCenterY, native.systemFont, 50 )
 	 time:setFillColor( 0, 0, 0 )
+	 composer.setVariable( "finalScore", actualScore )
+
 pauseBtn:toBack()
 
 
