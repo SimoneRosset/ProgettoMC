@@ -249,7 +249,6 @@ function scene:create( event )
 	grass.anchorY = 1
 	--  draw the grass at the very bottom of the screen
 	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.8 + display.screenOriginY
-	physics.addBody( grass,"static", {  density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
 
 
 	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
@@ -288,11 +287,18 @@ sceneGroup:insert(birdg)
 world:insert( birdg )
 
 
--- corda[1]=display.newImageRect( cordag, "corda.png", 100,40 )
--- pivot=physics.newJoint( "rope",corda[1] , balloon,0,0,0,0 )
+-- corda[1]=display.newImageRect( cordag, "corda.png", 2,4 )
+-- corda[1].x,corda[1].y=balloon.x,balloon.y+25
+-- physics.addBody( corda[1])
+-- pivot=physics.newJoint( "rope",balloon , corda[1],0,25,0,25 )
+--
 --
 -- for i=2,(display.contentCenterY*0.1) do
--- 	corda[i]=display.newImageRect( cordag, "corda.png", 10,20 )
+-- 	corda[i]=display.newImageRect( cordag, "corda.png", 2,4 )
+--
+-- 	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
+-- 	physics.addBody( corda[i])
+--
 -- 	pivot=physics.newJoint( "rope", corda[i-1], corda[i],0,2,0,2)
 -- end
 
@@ -498,6 +504,8 @@ function scene:show( event )
 
 		physics.start()
 		physics.setGravity(0,5)
+		physics.addBody( grass,"static", {  density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
+
 		physics.addBody( balloon, "dynamic", { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
 		Runtime:addEventListener("enterFrame", enterFrame)
 		background:addEventListener("touch", shift)

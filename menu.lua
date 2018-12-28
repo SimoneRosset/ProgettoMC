@@ -130,6 +130,9 @@ function scene:create( event )
 	sceneGroup:insert( titleLogo )
 	sceneGroup:insert( playBtn )
 	sceneGroup:insert( highBtn )
+	birdgroup=display.newGroup()
+
+		sceneGroup:insert( birdgroup )
 end
 local function newBird(event)
 
@@ -148,21 +151,21 @@ local function enterFrame(event)
 			for i=1, birdgroup.numChildren do
 				if birdgroup[i].sequence=="flyToRight"    then
 					-- birdg[i]:setSequence( "flyToRight" )
-				birdgroup[i]:setLinearVelocity(200,0)
+					birdgroup[i]:setLinearVelocity(200,0)
 
 			else
 				-- birdg[i]:setSequence( "flyToLeft" )
-
 				birdgroup[i]:setLinearVelocity(-200,0)
 
-
 			end
+			if not birdgroup[i]==nil then
+
 			if offScreen(birdgroup[i])==true then
 				display.remove( birdgroup[i] )
-			 birdgroup:remove(birdgroup[i])
-			 birdgroup[i]=nil
-	 end
+				birdgroup:remove(birdg[i])
 
+	 end
+end
 		end
 
 			-- INSERT code here to make the scene come alive
@@ -198,9 +201,7 @@ end
 	elseif phase == "did" then
 		-- Called when the scene is now on screen
 		--
-		birdgroup=display.newGroup()
 
-			sceneGroup:insert( birdgroup )
 
 		physics.start()
 		-- physics.setGravity(0,0)
@@ -226,7 +227,6 @@ function scene:hide( event )
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
-
 		Runtime:removeEventListener("enterFrame", enterFrame)
 
 	composer.removeScene("menu")
@@ -240,6 +240,7 @@ function scene:destroy( event )
 	--
 	-- INSERT code here to cleanup the scene
 	-- e.g. remove display objects, remove touch listeners, save state, etc.
+	Runtime:removeEventListener("enterFrame", enterFrame)
 
 	if playBtn then
 		playBtn:removeSelf()	-- widgets must be manually removed
