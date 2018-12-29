@@ -11,6 +11,9 @@ local pause, press=false, false
 local backBtn
 local pauseBtn
 local restartBtn
+local pop = audio.loadSound( "pop.wav" )
+local click = audio.loadSound( "click.wav" )
+
 -- include Corona's "physics" library
 local physics = require "physics"
 local birds = require "bird"
@@ -98,6 +101,7 @@ local function bestScore()
 
 end
 local function onBackBtnRelease()
+	audio.play( click )
 	-- go to game.lua scene
 	display.remove(fog)
  display.remove( time )
@@ -110,6 +114,8 @@ local function onBackBtnRelease()
 	return true	-- indicates successful touch
 end
 local function onRestartBtnRelease()
+	audio.play( click )
+
 	-- go to game.lua scene
 	display.remove(fog)
  display.remove( time )
@@ -194,6 +200,8 @@ end
 end
 
 local function onPauseBtnRelease()
+	audio.play( click )
+
 	-- go to game.lua scene
 	if pause and not press then
 		pauseBtn:setLabel("")
@@ -228,6 +236,8 @@ end
 		-- indicates successful touch
 end
 local function onOkBtnRelease()
+	audio.play(click )
+
 	physics.start()
 
 
@@ -442,6 +452,7 @@ clouds.new(cloudg, math.random(display.actualContentWidth), math.random(0, displ
 
 end
 local function onCollisionBalloon(self,event)
+	audio.play(pop)
 	Runtime:removeEventListener("enterFrame", enterFrame)
 	background:removeEventListener("touch", shift)
 	balloon:setSequence("boom")
@@ -674,6 +685,8 @@ function scene:destroy( event )
 	-- INSERT code here to cleanup the scene
 	-- e.g. remove display objects, remove touch listeners, save state, etc.
 	--local sceneGroup = self.view
+	audio.dispose( pop )
+	audio.dispose( click )
 
 	--package.loaded[physics] = nil
 	--physics = nil

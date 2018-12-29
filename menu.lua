@@ -14,6 +14,8 @@ local clouds = require "cloud"
 local birds = require "bird"
 
 local balloon = require "balloon"
+local click = audio.loadSound( "click.wav" )
+
 -- local corda={}
 local json = require( "json" )
 
@@ -48,7 +50,7 @@ local tutorialBtn
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
-
+audio.play(click)
 	-- go to game.lua scene
 	physics.stop()
 
@@ -63,6 +65,7 @@ local function onPlayBtnRelease()
 	return true	-- indicates successful touch
 end
 local function onTutorialBtnRelease()
+	audio.play(click)
 
 	-- go to game.lua scene
 	physics.stop()
@@ -81,6 +84,7 @@ composer.removeScene( "menu")
 	return true	-- indicates successful touch
 end
 local function onHighBtnRelease()
+	audio.play(click)
 
 	-- go to game.lua scene
 	physics.stop()
@@ -307,6 +311,7 @@ function scene:destroy( event )
 
 	-- Called prior to the removal of scene's "view" (sceneGroup)
 	--
+	audio.dispose(click)
 	-- INSERT code here to cleanup the scene
 	-- e.g. remove display objects, remove touch listeners, save state, etc.
 	Runtime:removeEventListener("enterFrame", enterFrame)

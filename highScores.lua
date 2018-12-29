@@ -5,7 +5,7 @@ local widget = require "widget"
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 local clouds = require "cloud"
 local balloon = require "balloon"
-local corda={}
+local click = audio.loadSound( "click.wav" )
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -52,13 +52,7 @@ end
 -- -----------------------------------------------------------------------------------
 
 -- create()
-local function gotoMenu()
-  physics.stop()
 
-  composer.removeScene( "highScores" )
-
-    composer.gotoScene( "menu", { time=400, effect="fade" } )
-end
 function scene:create( event )
 
     local sceneGroup = self.view
@@ -73,7 +67,7 @@ function scene:create( event )
    -- Sort the table entries from highest to lowest
     local function compare( a, b )
         return a > b
-        
+
 
     end
     table.sort( scoresTable, compare )
@@ -113,7 +107,8 @@ function scene:create( event )
 
        local function onBackBtnRelease()
        	-- go to game.lua scene
-        physics.stop()
+        audio.play(click)
+
        	composer.removeScene( "highScores")
        	composer.gotoScene( "menu", "fade", 400 )
 
@@ -188,7 +183,6 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
-        physics.stop()
         composer.removeScene( "highScores" )
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
@@ -203,7 +197,7 @@ function scene:destroy( event )
 
     local sceneGroup = self.view
     -- Code here runs prior to the removal of scene's view
-
+audio.dispose(click)
 
 end
 
