@@ -26,6 +26,8 @@ local highBtn
 local function onPlayBtnRelease()
 
 	-- go to game.lua scene
+	physics.stop()
+
 	timer.cancel(timerNewBird)
 
 	Runtime:removeEventListener("enterFrame", enterFrame)
@@ -39,6 +41,8 @@ end
 local function onHighBtnRelease()
 
 	-- go to game.lua scene
+	physics.stop()
+
 	timer.cancel(timerNewBird)
 
 	Runtime:removeEventListener("enterFrame", enterFrame)
@@ -178,6 +182,8 @@ function scene:show( event )
 	local phase = event.phase
 
 	if phase == "will" then
+		physics.start()
+
 		for _=1,3 do
 			clouds.new(sceneGroup, math.random(display.actualContentWidth), math.random(0, display.actualContentHeight/4.5))
 
@@ -185,15 +191,22 @@ function scene:show( event )
 
 	local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
 	balloon.alpha=0.7
-for i=1,(display.contentCenterY*0.1) do
+	physics.addBody( balloon, "static" )
+for i=1,20 do
 	corda[i]=display.newImageRect( sceneGroup, "corda.png", 2,4 )
-end
-corda[1].x,corda[1].y=balloon.x,balloon.y+25
-balloon:toFront()
-for i=2,(display.contentCenterY*0.1) do
-	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
+	physics.addBody( corda[i], "static" )
 
 end
+corda[1].x,corda[1].y=balloon.x,balloon.y+25
+rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
+
+balloon:toFront()
+for i=2,#corda do
+	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
+	rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,2,0,2)
+
+end
+
 
 
 
@@ -203,7 +216,7 @@ end
 		--
 
 
-		physics.start()
+
 		-- physics.setGravity(0,0)
 		timerNewBird=timer.performWithDelay( math.random(1,2)*2000, newBird )
 

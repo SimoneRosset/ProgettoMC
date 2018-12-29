@@ -33,7 +33,7 @@ local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
     end
 
     if ( scoresTable == nil or #scoresTable == 0 ) then
-        scoresTable = { 0, 0, 0, 0, 0}
+        scoresTable = { 0, 0, 0}
     end
 
 --------------------------------------------
@@ -42,6 +42,8 @@ local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 local actualScore=0
 local actualRecord=scoresTable[1]
+composer.setVariable( "record", scoresTable[1] )
+
 ----------------------------aggiunte da codice precedente-----------------------
 local velocity=220
 local move=2
@@ -54,8 +56,10 @@ local secondi=3
 local time
 local fog
 local function bestScore()
-    actualScore=actualRecord
+    actualRecord=actualScore
+		composer.setVariable( "record", actualRecord )
 		record.text="record: "..actualRecord
+
 
 end
 local function onBackBtnRelease()
@@ -388,10 +392,10 @@ local function onCollisionBalloon(self,event)
 	 composer.setVariable( "finalScore", actualScore )
 	 record.x,record.y=display.contentCenterX,display.contentCenterY*1.15
 	 record.alpha=1
-	 -- if actualRecord>composer.getVariable( "record" ) then
-		--  record.text="newRecord: "..actualRecord.."!"
-	 --
-	 -- end
+	 if actualRecord>composer.getVariable( "record" ) then
+		 record.text="newRecord: "..actualRecord.."!"
+
+	 end
 
 pauseBtn:toBack()
 
@@ -417,12 +421,12 @@ end
 for i=1, birdg.numChildren do
 	if birdg[i].sequence=="flyToRight"    then
 		-- birdg[i]:setSequence( "flyToRight" )
-	birdg[i]:setLinearVelocity(velocity,-1)
+	birdg[i]:setLinearVelocity(velocity,0)
 
 else
 	-- birdg[i]:setSequence( "flyToLeft" )
 
-	birdg[i]:setLinearVelocity(-velocity,-1)
+	birdg[i]:setLinearVelocity(-velocity,0)
 
 end
 end
@@ -483,7 +487,7 @@ velocity=velocity+(actualScore/500)
 end
 local function newBird(event)
 	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
-	timerNewBird=timer.performWithDelay( math.random(1,2)*400, newBird )
+	timerNewBird=timer.performWithDelay( math.random(1,2)*500, newBird )
 
 end
 
@@ -507,6 +511,22 @@ function scene:show( event )
 		physics.addBody( grass,"static", {  density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
 
 		physics.addBody( balloon, "dynamic", { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
+		-- for i=1,10 do
+		-- 	corda[i]=display.newImageRect( world, "corda.png", 2,4 )
+		-- end
+		-- corda[1].x,corda[1].y=balloon.x,balloon.y+20
+		-- physics.addBody( corda[1], "dynamic",{ density=0 } )
+		--
+		-- rope=physics.newJoint( "pivot", balloon, corda[1],0,1)
+		--
+		-- balloon:toFront()
+		-- for i=2, 10 do
+		-- 	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
+		-- 	physics.addBody( corda[i], "dynamic",{  density=0 } )
+		--
+		-- 	rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,1)
+		--
+		-- end
 		Runtime:addEventListener("enterFrame", enterFrame)
 		background:addEventListener("touch", shift)
 		timerNewBird=timer.performWithDelay( math.random(1,2)*1500, newBird )

@@ -4,6 +4,8 @@ local scene = composer.newScene()
 local widget = require "widget"
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 local clouds = require "cloud"
+local balloon = require "balloon"
+local corda={}
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -28,7 +30,7 @@ local function loadScores()
     end
 
     if ( scoresTable == nil or #scoresTable == 0 ) then
-        scoresTable = { 0, 0, 0, 0, 0}
+        scoresTable = { 0, 0, 0}
     end
 end
 local function saveScores()
@@ -51,6 +53,10 @@ end
 
 -- create()
 local function gotoMenu()
+  physics.stop()
+
+  composer.removeScene( "highScores" )
+
     composer.gotoScene( "menu", { time=400, effect="fade" } )
 end
 function scene:create( event )
@@ -91,7 +97,7 @@ function scene:create( event )
    end
    local highScoresHeader = display.newText( sceneGroup, "highScores:", display.contentCenterX, 50, native.systemFont, 44 )
    highScoresHeader:setFillColor(0,0,0)
-   for i = 1, 5 do
+   for i = 1, 3 do
            if ( scoresTable[i] ) then
                local yPos = 60 + ( i * 56 )
 
@@ -105,7 +111,7 @@ function scene:create( event )
 
        local function onBackBtnRelease()
        	-- go to game.lua scene
-
+        physics.stop()
        	composer.removeScene( "highScores")
        	composer.gotoScene( "menu", "fade", 400 )
 
@@ -124,6 +130,30 @@ function scene:create( event )
        backBtn.y = display.contentCenterY-display.contentCenterY*1.1
        sceneGroup:insert( backBtn )
 
+       local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
+       balloon.alpha=0.7
+         physics.start()
+       physics.addBody( balloon, "static" )
+       for i=1,20 do
+       corda[i]=display.newImageRect( sceneGroup, "corda.png", 2,4 )
+       physics.addBody( corda[i], "static" )
+
+       end
+       corda[1].x,corda[1].y=balloon.x,balloon.y+25
+       rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
+
+       balloon:toFront()
+       for i=2,#corda do
+       corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
+       rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,2,0,2)
+
+     end
+       -- graph=display.newGroup()
+       -- sceneGroup:insert(graph)
+       -- graph:insert(grass)
+       -- graph:insert(balloon)
+       -- graph:insert(grass)
+
 end
 
 
@@ -136,8 +166,13 @@ function scene:show( event )
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
 
+
+
+
+
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
+
 
     end
 end
@@ -151,10 +186,11 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
-
+        physics.stop()
+        composer.removeScene( "highScores" )
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
-        composer.removeScene( "highScores" )
+
 
     end
 end
@@ -165,6 +201,7 @@ function scene:destroy( event )
 
     local sceneGroup = self.view
     -- Code here runs prior to the removal of scene's view
+
 
 end
 
