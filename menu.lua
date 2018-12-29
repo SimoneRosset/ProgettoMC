@@ -14,13 +14,37 @@ local clouds = require "cloud"
 local birds = require "bird"
 
 local balloon = require "balloon"
-local corda={}
+-- local corda={}
+local json = require( "json" )
 
+local scoresTable = {}
+local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
+
+
+    local file = io.open( filePath, "r" )
+
+    if file then
+        local contents = file:read( "*a" )
+        io.close( file )
+        scoresTable = json.decode( contents )
+    end
+
+    if ( scoresTable == nil or #scoresTable == 0 ) then
+        scoresTable = { 0, 0, 0, true}
+    end
+
+if scoresTable[1]==0 then
+	composer.setVariable( "record", true )
+else
+	composer.setVariable( "record", false )
+
+end
 --------------------------------------------
 
 -- forward declarations and other locals
 local playBtn
 local highBtn
+local tutorialBtn
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
@@ -33,6 +57,24 @@ local function onPlayBtnRelease()
 	Runtime:removeEventListener("enterFrame", enterFrame)
 
 	composer.removeScene( "menu")
+
+	composer.gotoScene( "game", "fade", 400 )
+
+	return true	-- indicates successful touch
+end
+local function onTutorialBtnRelease()
+
+	-- go to game.lua scene
+	physics.stop()
+
+	composer.setVariable( "tutorial", true )
+
+
+	timer.cancel(timerNewBird)
+
+	Runtime:removeEventListener("enterFrame", enterFrame)
+
+composer.removeScene( "menu")
 
 	composer.gotoScene( "game", "fade", 400 )
 
@@ -72,7 +114,7 @@ function scene:create( event )
 	-- create/position logo/title image on upper-half of the screen
 	local titleLogo = display.newImageRect( "logo.png", 250, 60 )
 	titleLogo.x = display.contentCenterX
-	titleLogo.y = display.contentCenterY*0.75
+	titleLogo.y = display.contentCenterY*0.6
 
 
 
@@ -110,7 +152,7 @@ function scene:create( event )
 		onRelease = onPlayBtnRelease	-- event listener function
 	}
 	playBtn.x = display.contentCenterX
-	playBtn.y = display.contentCenterY*0.95
+	playBtn.y = display.contentCenterY*0.8
 
 	highBtn = widget.newButton{
 		label="highScore",
@@ -121,7 +163,18 @@ function scene:create( event )
 		onRelease = onHighBtnRelease	-- event listener function
 	}
 	highBtn.x = display.contentCenterX
-	highBtn.y = display.contentCenterY*1.1
+	highBtn.y = display.contentCenterY*0.9
+
+	tutorialBtn = widget.newButton{
+		label="tutorial",
+		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
+		default="button.png",
+		over="button-over.png",
+		width=154, height=40,
+		onRelease = onTutorialBtnRelease	-- event listener function
+	}
+	tutorialBtn.x = display.contentCenterX
+	tutorialBtn.y = display.contentCenterY
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
@@ -134,6 +187,8 @@ function scene:create( event )
 	sceneGroup:insert( titleLogo )
 	sceneGroup:insert( playBtn )
 	sceneGroup:insert( highBtn )
+	sceneGroup:insert( tutorialBtn )
+
 	birdgroup=display.newGroup()
 
 		sceneGroup:insert( birdgroup )
@@ -191,21 +246,22 @@ function scene:show( event )
 
 	local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
 	balloon.alpha=0.7
-	physics.addBody( balloon, "static" )
-for i=1,20 do
-	corda[i]=display.newImageRect( sceneGroup, "corda.png", 2,4 )
-	physics.addBody( corda[i], "static" )
+-- for i=1,20 do
+	corda=display.newImageRect( sceneGroup, "corda.png", 2,grass.y-grass.height-balloon.y)
+-- 	physics.addBody( corda[i], "static" )
+--
+-- end
+corda.x,corda.y=balloon.x,balloon.y*1.23
+corda.alpha=0.7
 
-end
-corda[1].x,corda[1].y=balloon.x,balloon.y+25
-rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
-
+-- rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
+--
 balloon:toFront()
-for i=2,#corda do
-	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
-	rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,2,0,2)
-
-end
+-- for i=2,#corda do
+-- 	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
+-- 	rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,2,0,2)
+--
+-- end
 
 
 

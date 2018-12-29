@@ -20,9 +20,9 @@ local json = require( "json" )
 
 
 local scoresTable = {}
-local corda={}
-local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
 
+local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
+local function loadScores()
 
     local file = io.open( filePath, "r" )
 
@@ -36,13 +36,48 @@ local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
         scoresTable = { 0, 0, 0}
     end
 
+end
+loadScores()
+composer.setVariable( "record", scoresTable[1] )
+local function saveScores()
+
+    for i = #scoresTable, 4, -1 do
+        table.remove( scoresTable, i )
+    end
+
+    local file = io.open( filePath, "w" )
+
+    if file then
+        file:write( json.encode( scoresTable ) )
+        io.close( file )
+    end
+end
+
+-- -----------------------------------------------------------------------------------
+-- Scene event functions
+-- -----------------------------------------------------------------------------------
+
+-- create()
+
+    -- Code here runs when the scene is first created but has not yet appeared on screen
+    -- Load the previous scores
+
+   -- Sort the table entries from highest to lowest
+    local function compare( a, b )
+
+        return a > b
+
+    end
+
 --------------------------------------------
 
 -- forward declarations and other locals
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 local actualScore=0
-local actualRecord=scoresTable[1]
-composer.setVariable( "record", scoresTable[1] )
+local actualRecord = composer.getVariable( "record" )
+local tutorial = composer.getVariable( "tutorial" )
+-- composer.setVariable( "tutorial", scoresTable[4] )
+--
 
 ----------------------------aggiunte da codice precedente-----------------------
 local velocity=220
@@ -56,9 +91,9 @@ local secondi=3
 local time
 local fog
 local function bestScore()
-    actualRecord=actualScore
-		composer.setVariable( "record", actualRecord )
-		record.text="record: "..actualRecord
+
+
+		record.text="record: "..actualScore
 
 
 end
@@ -79,7 +114,18 @@ local function onRestartBtnRelease()
 	display.remove(fog)
  display.remove( time )
 	physics.stop()
+	loadScores()
+	-- Insert the saved score from the last game into the table, then reset it
+table.insert( scoresTable, composer.getVariable( "finalScore" ) )
+composer.setVariable( "finalScore", 0 )
+table.sort( scoresTable, compare )
+-- Save the scores
+saveScores()
+composer.setVariable( "record", scoresTable[1] )
+
 	composer.removeScene( "game")
+
+
 	composer.gotoScene( "game", "fade", 400 )
 
 	return true	-- indicates successful touch
@@ -181,6 +227,30 @@ end
 
 		-- indicates successful touch
 end
+local function onOkBtnRelease()
+	physics.start()
+
+
+	timer.resume( timerNewBird )
+	background:addEventListener("touch", shift)
+display.remove(fog)
+okBtn:toBack()
+backBtn:toFront()
+pauseBtn:toFront()
+scoresTable[4]=false
+
+    for i = #scoresTable, 4, -1 do
+        table.remove( scoresTable, i )
+    end
+
+    local file = io.open( filePath, "w" )
+
+    if file then
+        file:write( json.encode( scoresTable ) )
+        io.close( file )
+    end
+
+end
 
 -- local function offScreen(object)
 -- 	local bounds = object.contentBounds
@@ -225,6 +295,18 @@ function scene:create( event )
 	pauseBtn.y = display.contentCenterY-display.contentCenterY*1.1
 	sceneGroup:insert( pauseBtn )
 
+	okBtn= widget.newButton{
+		label="ok!",
+		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
+		default="button.png",
+		over="button-over.png",
+		width=154, height=40,
+		onRelease = onOkBtnRelease	-- event listener function
+	}
+	okBtn.x = display.contentCenterX
+	okBtn.y = display.contentCenterY
+	sceneGroup:insert( okBtn )
+okBtn:toBack()
 
 	-- We need physics started to add bodies, but we don't want the simulaton
  	-- running until the scene is on the screen.
@@ -392,8 +474,10 @@ local function onCollisionBalloon(self,event)
 	 composer.setVariable( "finalScore", actualScore )
 	 record.x,record.y=display.contentCenterX,display.contentCenterY*1.15
 	 record.alpha=1
-	 if actualRecord>composer.getVariable( "record" ) then
-		 record.text="newRecord: "..actualRecord.."!"
+	 if actualScore>=actualRecord then
+		 record.text="newRecord: "..actualScore.."!"
+		 composer.setVariable( "record", actualScore )
+
 
 	 end
 
@@ -404,6 +488,7 @@ pauseBtn:toBack()
 
 
 end
+
 
 local function enterFrame(event)
 
@@ -463,7 +548,7 @@ if not birdg[i]==nil then
 		 end
 	 end
  end
- if actualScore>actualRecord then
+ if actualScore>=actualRecord then
 	 bestScore()
  end
 	-- -- recycle old buildings (pass 2)
@@ -533,6 +618,24 @@ function scene:show( event )
 		balloon.collision=onCollisionBalloon
 		balloon:addEventListener("collision")
 
+		if tutorial==true then
+
+			fog=display.newImageRect( "tutorial.png", display.actualContentWidth, display.actualContentHeight )
+			fog.anchorX = 0
+			fog.anchorY = 0
+			fog.x = 0 + display.screenOriginX
+			fog.y = 0 + display.screenOriginY
+			fog:setFillColor(0.5,0.5,0.5)
+			fog.alpha=0.4
+				background:removeEventListener("touch", shift)
+			timer.pause(timerNewBird)
+		physics.pause()
+		pauseBtn:toBack()
+		backBtn:toBack()
+	okBtn:toFront()
+	composer.setVariable( "tutorial", false )
+
+		end
 	end
 end
 

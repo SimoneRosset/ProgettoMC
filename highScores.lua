@@ -35,7 +35,7 @@ local function loadScores()
 end
 local function saveScores()
 
-    for i = #scoresTable, 6, -1 do
+    for i = #scoresTable, 4, -1 do
         table.remove( scoresTable, i )
     end
 
@@ -73,6 +73,8 @@ function scene:create( event )
    -- Sort the table entries from highest to lowest
     local function compare( a, b )
         return a > b
+        
+
     end
     table.sort( scoresTable, compare )
     -- Save the scores
@@ -131,23 +133,23 @@ function scene:create( event )
        sceneGroup:insert( backBtn )
 
        local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
-       balloon.alpha=0.7
-         physics.start()
-       physics.addBody( balloon, "static" )
-       for i=1,20 do
-       corda[i]=display.newImageRect( sceneGroup, "corda.png", 2,4 )
-       physics.addBody( corda[i], "static" )
+     	balloon.alpha=0.7
+     -- for i=1,20 do
+     	corda=display.newImageRect( sceneGroup, "corda.png", 2,grass.y-grass.height-balloon.y)
+     -- 	physics.addBody( corda[i], "static" )
+     --
+     -- end
+     corda.x,corda.y=balloon.x,balloon.y*1.23
+     corda.alpha=0.7
 
-       end
-       corda[1].x,corda[1].y=balloon.x,balloon.y+25
-       rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
-
-       balloon:toFront()
-       for i=2,#corda do
-       corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
-       rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,2,0,2)
-
-     end
+     -- rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
+     --
+     balloon:toFront()
+     -- for i=2,#corda do
+     -- 	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
+     -- 	rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,2,0,2)
+     --
+     -- end
        -- graph=display.newGroup()
        -- sceneGroup:insert(graph)
        -- graph:insert(grass)
