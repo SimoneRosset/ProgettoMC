@@ -15,7 +15,7 @@ local pop = audio.loadSound( "pop.wav" )
 local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
 audio.reserveChannels( 1 )
-audio.setMaxVolume( 0.2, {channel=1})
+audio.setMaxVolume( 0.1, {channel=1})
 
 -- include Corona's "physics" library
 local physics = require "physics"
