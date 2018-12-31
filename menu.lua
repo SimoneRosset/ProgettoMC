@@ -15,14 +15,18 @@ local birds = require "bird"
 
 local balloon = require "balloon"
 local click = audio.loadSound( "click.wav" )
+local tweet = audio.loadSound( "tweet.wav" )
+audio.reserveChannels( 1 )
+audio.setMaxVolume( 0.2, {channel=1})
 
 -- local corda={}
 local json = require( "json" )
 
 local scoresTable = {}
 local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
-
-
+local tutorial={}
+local filePath2 = system.pathForFile( "tutorial.json", system.DocumentsDirectory )
+local function loadScores()
     local file = io.open( filePath, "r" )
 
     if file then
@@ -32,15 +36,35 @@ local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
     end
 
     if ( scoresTable == nil or #scoresTable == 0 ) then
-        scoresTable = { 0, 0, 0, true}
+        scoresTable = { 0, 0, 0}
     end
-
-if scoresTable[1]==0 then
-	composer.setVariable( "record", true )
-else
-	composer.setVariable( "record", false )
-
 end
+
+	local function loadTutorial()
+
+	    local file = io.open( filePath2, "r" )
+
+	    if file then
+	        local contents = file:read( "*a" )
+	        io.close( file )
+	        tutorial = json.decode( contents )
+	    end
+
+	    if ( tutorial == nil or #tutorial == 0) then --or #tutorial == 0
+	        tutorial = {true}
+	    end
+	end
+	local function saveTutorial()
+
+	        table.remove( tutorial )
+
+	    local file = io.open( filePath2, "w" )
+
+	    if file then
+	        file:write( json.encode( tutorial ) )
+	        io.close( file )
+	    end
+	end
 --------------------------------------------
 
 -- forward declarations and other locals
@@ -70,8 +94,11 @@ local function onTutorialBtnRelease()
 	-- go to game.lua scene
 	physics.stop()
 
-	composer.setVariable( "tutorial", true )
+	loadTutorial()
 
+	table.insert( tutorial, 1, true )
+
+	saveTutorial()
 
 	timer.cancel(timerNewBird)
 
@@ -101,6 +128,10 @@ local function onHighBtnRelease()
 end
 function scene:create( event )
 	local sceneGroup = self.view
+	loadScores()
+	loadTutorial()
+	composer.setVariable( "record", scoresTable[1] )
+
 
 	-- Called when the scene's view does not exist.
 	--
@@ -167,7 +198,7 @@ function scene:create( event )
 		onRelease = onHighBtnRelease	-- event listener function
 	}
 	highBtn.x = display.contentCenterX
-	highBtn.y = display.contentCenterY*0.9
+	highBtn.y = display.contentCenterY*0.95
 
 	tutorialBtn = widget.newButton{
 		label="tutorial",
@@ -178,7 +209,7 @@ function scene:create( event )
 		onRelease = onTutorialBtnRelease	-- event listener function
 	}
 	tutorialBtn.x = display.contentCenterX
-	tutorialBtn.y = display.contentCenterY
+	tutorialBtn.y = display.contentCenterY*1.1
 
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
@@ -198,9 +229,9 @@ function scene:create( event )
 		sceneGroup:insert( birdgroup )
 end
 local function newBird(event)
-
+audio.play(tweet, {channel=1})
 	birds.new(birdgroup, (math.random(1,2)-1)*screenW, math.random(0,display.actualContentHeight/4)).alpha=0.8
-	timerNewBird=timer.performWithDelay( math.random(1,2)*2000, newBird )
+	timerNewBird=timer.performWithDelay( math.random(1,2)*3000, newBird )
 
 end
 local function offScreen(object)
@@ -312,6 +343,9 @@ function scene:destroy( event )
 	-- Called prior to the removal of scene's "view" (sceneGroup)
 	--
 	audio.dispose(click)
+	click=nil
+	audio.dispose(tweet)
+	tweet=nil
 	-- INSERT code here to cleanup the scene
 	-- e.g. remove display objects, remove touch listeners, save state, etc.
 	Runtime:removeEventListener("enterFrame", enterFrame)

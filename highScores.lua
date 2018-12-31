@@ -19,6 +19,7 @@ local json = require( "json" )
 local scoresTable = {}
 
 local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
+
 local function loadScores()
 
     local file = io.open( filePath, "r" )
@@ -33,6 +34,7 @@ local function loadScores()
         scoresTable = { 0, 0, 0}
     end
 end
+
 local function saveScores()
 
     for i = #scoresTable, 4, -1 do
@@ -67,8 +69,6 @@ function scene:create( event )
    -- Sort the table entries from highest to lowest
     local function compare( a, b )
         return a > b
-
-
     end
     table.sort( scoresTable, compare )
     -- Save the scores
@@ -198,6 +198,8 @@ function scene:destroy( event )
     local sceneGroup = self.view
     -- Code here runs prior to the removal of scene's view
 audio.dispose(click)
+click=nil
+
 
 end
 

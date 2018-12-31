@@ -13,6 +13,9 @@ local pauseBtn
 local restartBtn
 local pop = audio.loadSound( "pop.wav" )
 local click = audio.loadSound( "click.wav" )
+local tweet = audio.loadSound( "tweet.wav" )
+audio.reserveChannels( 1 )
+audio.setMaxVolume( 0.2, {channel=1})
 
 -- include Corona's "physics" library
 local physics = require "physics"
@@ -40,7 +43,6 @@ local function loadScores()
     end
 
 end
-loadScores()
 composer.setVariable( "record", scoresTable[1] )
 local function saveScores()
 
@@ -78,7 +80,35 @@ end
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 local actualScore=0
 local actualRecord = composer.getVariable( "record" )
-local tutorial = composer.getVariable( "tutorial" )
+local tutorial={}
+local filePath2 = system.pathForFile( "tutorial.json", system.DocumentsDirectory )
+local function loadTutorial()
+
+    local file = io.open( filePath2, "r" )
+
+    if file then
+        local contents = file:read( "*a" )
+        io.close( file )
+        tutorial = json.decode( contents )
+    end
+
+    if ( tutorial == nil or #tutorial == 0 ) then --or #tutorial == 0
+        tutorial = {true}
+    end
+end
+local function saveTutorial()
+
+        table.remove( tutorial )
+
+    local file = io.open( filePath2, "w" )
+
+    if file then
+        file:write( json.encode( tutorial ) )
+        io.close( file )
+    end
+end
+
+-- = composer.getVariable( "tutorial" )
 -- composer.setVariable( "tutorial", scoresTable[4] )
 --
 
@@ -247,20 +277,7 @@ display.remove(fog)
 okBtn:toBack()
 backBtn:toFront()
 pauseBtn:toFront()
-scoresTable[4]=false
 
-    for i = #scoresTable, 4, -1 do
-        table.remove( scoresTable, i )
-    end
-
-    local file = io.open( filePath, "w" )
-
-    if file then
-        file:write( json.encode( scoresTable ) )
-        io.close( file )
-    end
-
-end
 
 -- local function offScreen(object)
 -- 	local bounds = object.contentBounds
@@ -270,7 +287,7 @@ end
 -- 	if bounds.xMin > display.actualContentWidth - sox then return true end
 -- 	if bounds.yMin > display.actualContentHeight - soy then return true end
 -- 	return false
--- end
+end
 
 function scene:create( event )
 
@@ -280,7 +297,8 @@ function scene:create( event )
 	-- e.g. add display objects to 'sceneGroup', add touch listeners, etc.
 
 	local sceneGroup = self.view
-
+loadScores()
+loadTutorial()
 	backBtn = widget.newButton{
 		label="back",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
@@ -582,6 +600,7 @@ velocity=velocity+(actualScore/500)
 
 end
 local function newBird(event)
+	audio.play(tweet, {channel=1})
 	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
 	timerNewBird=timer.performWithDelay( math.random(1,2)*500, newBird )
 
@@ -629,7 +648,7 @@ function scene:show( event )
 		balloon.collision=onCollisionBalloon
 		balloon:addEventListener("collision")
 
-		if tutorial==true then
+		if tutorial[1] then
 
 			fog=display.newImageRect( "tutorial.png", display.actualContentWidth, display.actualContentHeight )
 			fog.anchorX = 0
@@ -644,7 +663,9 @@ function scene:show( event )
 		pauseBtn:toBack()
 		backBtn:toBack()
 	okBtn:toFront()
-	composer.setVariable( "tutorial", false )
+	loadTutorial()
+table.insert( tutorial, 1, false )
+saveTutorial()
 
 		end
 	end
@@ -685,8 +706,12 @@ function scene:destroy( event )
 	-- INSERT code here to cleanup the scene
 	-- e.g. remove display objects, remove touch listeners, save state, etc.
 	--local sceneGroup = self.view
+	audio.dispose(tweet)
+	tweet=nil
 	audio.dispose( pop )
 	audio.dispose( click )
+	click=nil
+	pop=nil
 
 	--package.loaded[physics] = nil
 	--physics = nil
