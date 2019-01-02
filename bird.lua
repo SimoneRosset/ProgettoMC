@@ -1,7 +1,4 @@
--- Module/class for platformer enemy
--- Use this as a template to build an in-game enemy
-
--- Define module
+-- Definizione modulo
 local M = {}
 
 local composer = require( "composer" )
@@ -10,12 +7,11 @@ function M.new( parent, x, y )
 
 	if not parent then error( "ERROR: Expected display object" ) end
 
-	-- Get scene and sounds
+	--Inizializza i suoni e la scena
 	local scene = composer.getScene( composer.getSceneName( "current" ) )
-	--local sounds = scene.sounds
-	-- Store map placement and hide placeholder
+	
 
-	-- Load spritesheet
+	--Carica lo spritesheet
 	local sheetData = { width = 50, height = 50, numFrames = 8, sheetContentWidth = 200, sheetContentHeight = 100 }
 	local sheet = graphics.newImageSheet( "birdSheet.png", sheetData )
 	local sequenceData = {
@@ -25,7 +21,8 @@ function M.new( parent, x, y )
 	bird = display.newSprite( parent, sheet, sequenceData )
 	bird.x, bird.y, bird.width,bird.height  = x, y, 50, 50
 	physics.addBody( bird, "dynamic", { radius = 10, density = 1, bounce = 0.1, friction =  1.0 } )
-
+	
+	-- Se l'uccello si trova sul bordo sinistro va verso destra, altrimenti verso sinistra
 	if x==0 then
 	bird:setSequence( "flyToRight" )
 
@@ -34,78 +31,7 @@ else
 end
 	bird:play()
 
-
-	-- -- Add physics
-	-- physics.addBody( instance, "dynamic", { radius = 350, density = 1, bounce = 0.1, friction =  1.0 } )
-	-- instance.isFixedRotation = true
-	-- instance.anchorY = 0.77
-	-- instance.angularDamping = 3
-	-- instance.isDead = false
-	--
-	-- function instance:die()
-	-- 	--audio.play( sounds.sword )
-	-- 	self.isFixedRotation = false
-	-- 	self.isSensor = true
-	-- 	self:applyLinearImpulse( 0, -2 )
-	-- 	self.isDead = true
-	-- end
-	--
-	-- function instance:preCollision( event )
-	-- 	local other = event.other
-	-- 	local y1, y2 = self.y + 50, other.y - other.height/2
-	-- 	-- Also skip bumping into floating platforms
-	-- 	if event.contact and ( y1 > y2 ) then
-	-- 	if other.floating then
-	-- 		event.contact.isEnabled = false
-	-- 	else
-	-- 		event.contact.friction = 0.1
-	-- 	end
-	-- 	end
-	-- end
-	--
-	-- local max, direction, flip, timeout = 250, 5000, 0.133, 0
-	-- direction = direction * ( ( instance.xScale < 0 ) and 1 or -1 )
-	-- flip = flip * ( ( instance.xScale < 0 ) and 1 or -1 )
-	--
-	-- local function enterFrame()
-	--
-	-- 	-- Do this every frame
-	-- 	local vx, vy = instance:getLinearVelocity()
-	-- 	local dx = direction
-	-- 	if instance.jumping then dx = dx / 4 end
-	-- 	if ( dx < 0 and vx > -max ) or ( dx > 0 and vx < max ) then
-	-- 		instance:applyForce( dx or 0, 0, instance.x, instance.y )
-	-- 	end
-	--
-	-- 	-- Bumped
-	-- 	if math.abs( vx ) < 1 then
-	-- 		timeout = timeout + 1
-	-- 		if timeout > 30 then
-	-- 			timeout = 0
-	-- 			direction, flip = -direction, -flip
-	-- 		end
-	-- 	end
-	--
-	-- 	-- Turn around
-	-- 	instance.xScale = math.min( 1, math.max( instance.xScale + flip, -1 ) )
-	-- end
-	--
-	-- function instance:finalize()
-	-- 	-- On remove, cleanup instance, or call directly for non-visual
-	-- 	Runtime:removeEventListener( "enterFrame", enterFrame )
-	-- 	instance = nil
-	-- end
-	--
-	-- -- Add a finalize listener (for display objects only, comment out for non-visual)
-	-- instance:addEventListener( "finalize" )
-	--
-	-- -- Add our enterFrame listener
-	-- Runtime:addEventListener( "enterFrame", enterFrame )
-	--
-	-- -- Add our collision listener
-	-- instance:addEventListener( "preCollision" )
-
-	-- Return instance
+	--Restituisce l'istanza "bird"
 	bird.name = "bird"
 	bird.type = "bird"
 	return bird
