@@ -1,9 +1,9 @@
 
-
+-- Recupero lo spritesheet degli uccelli
 local sheetInfo = require("mysheet")
 local myImageSheet = graphics.newImageSheet( "birdSheet.png", sheetInfo:getSheet() )
 local sprite = display.newSprite( myImageSheet , {frames={sheetInfo:getFrameIndex("sprite")}} )
---
+
 
 local SheetInfo = {}
 
