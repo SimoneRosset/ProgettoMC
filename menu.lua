@@ -184,6 +184,7 @@ function scene:create( event )
 		default="button.png",
 		over="button-over.png",
 		width=154, height=40,
+		textOnly = true,
 		onRelease = onPlayBtnRelease	-- event listener function
 	}
 	playBtn.x = display.contentCenterX
@@ -195,6 +196,7 @@ function scene:create( event )
 		default="button.png",
 		over="button-over.png",
 		width=154, height=40,
+		textOnly = true,
 		onRelease = onHighBtnRelease	-- event listener function
 	}
 	highBtn.x = display.contentCenterX
@@ -206,6 +208,7 @@ function scene:create( event )
 		default="button.png",
 		over="button-over.png",
 		width=154, height=40,
+		textOnly = true,
 		onRelease = onTutorialBtnRelease	-- event listener function
 	}
 	tutorialBtn.x = display.contentCenterX
