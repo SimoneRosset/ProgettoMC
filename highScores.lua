@@ -116,6 +116,7 @@ function scene:create( event )
        end
 
        local backBtn = widget.newButton{
+         textOnly=true,
          label="back",
          labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
          default="button.png",
@@ -124,18 +125,18 @@ function scene:create( event )
          onRelease = onBackBtnRelease	-- event listener function
        }
        backBtn.x = display.contentCenterX*0.2
-       backBtn.y = display.contentCenterY-display.contentCenterY*1.1
+       backBtn.y = display.contentCenterY-display.contentCenterY
        sceneGroup:insert( backBtn )
 
        local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
-     	balloon.alpha=0.7
+
      -- for i=1,20 do
      	corda=display.newImageRect( sceneGroup, "corda.png", 2,grass.y-grass.height-balloon.y)
      -- 	physics.addBody( corda[i], "static" )
      --
      -- end
-     corda.x,corda.y=balloon.x,balloon.y*1.23
-     corda.alpha=0.7
+     corda.x,corda.y=balloon.x,balloon.y+balloon.height
+     corda.alpha=0.6
 
      -- rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
      --

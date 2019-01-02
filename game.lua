@@ -114,7 +114,7 @@ end
 
 ----------------------------aggiunte da codice precedente-----------------------
 local velocity=220
-local move=2
+local move=5
 local score = display.newText( 0, display.contentCenterX, 40, native.systemFont, 50 )
 score:setFillColor( 0, 0, 0 )
 local record = display.newText( "record: "..actualRecord, display.contentCenterX, 70, native.systemFont, 15 )
@@ -265,29 +265,7 @@ end
 
 		-- indicates successful touch
 end
-local function onOkBtnRelease()
-	audio.play(click )
 
-	physics.start()
-
-
-	timer.resume( timerNewBird )
-	background:addEventListener("touch", shift)
-display.remove(fog)
-okBtn:toBack()
-backBtn:toFront()
-pauseBtn:toFront()
-
-
--- local function offScreen(object)
--- 	local bounds = object.contentBounds
--- 	local sox, soy = display.screenOriginX, display.screenOriginY
--- 	if bounds.xMax < sox then return true end
--- 	if bounds.yMax < soy then return true end
--- 	if bounds.xMin > display.actualContentWidth - sox then return true end
--- 	if bounds.yMin > display.actualContentHeight - soy then return true end
--- 	return false
-end
 
 function scene:create( event )
 
@@ -300,6 +278,7 @@ function scene:create( event )
 loadScores()
 loadTutorial()
 	backBtn = widget.newButton{
+		textOnly=true,
 		label="back",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
@@ -308,10 +287,11 @@ loadTutorial()
 		onRelease = onBackBtnRelease	-- event listener function
 	}
 	backBtn.x = display.contentCenterX*0.2
-	backBtn.y = display.contentCenterY-display.contentCenterY*1.1
+	backBtn.y = display.contentCenterY-display.contentCenterY
 	sceneGroup:insert( backBtn )
 
 	pauseBtn = widget.newButton{
+		textOnly=true,
 		label="pause",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
@@ -320,21 +300,10 @@ loadTutorial()
 		onRelease = onPauseBtnRelease	-- event listener function
 	}
 	pauseBtn.x = display.contentCenterX*1.8
-	pauseBtn.y = display.contentCenterY-display.contentCenterY*1.1
+	pauseBtn.y = display.contentCenterY-display.contentCenterY
 	sceneGroup:insert( pauseBtn )
 
-	okBtn= widget.newButton{
-		label="ok!",
-		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
-		default="button.png",
-		over="button-over.png",
-		width=154, height=40,
-		onRelease = onOkBtnRelease	-- event listener function
-	}
-	okBtn.x = display.contentCenterX
-	okBtn.y = display.contentCenterY
-	sceneGroup:insert( okBtn )
-okBtn:toBack()
+
 
 	-- We need physics started to add bodies, but we don't want the simulaton
  	-- running until the scene is on the screen.
@@ -469,6 +438,7 @@ clouds.new(cloudg, math.random(display.actualContentWidth), math.random(0, displ
 	---------------------------------------------------------------------------------
 
 end
+
 local function onCollisionBalloon(self,event)
 	audio.play(pop)
 	Runtime:removeEventListener("enterFrame", enterFrame)
@@ -485,6 +455,7 @@ local function onCollisionBalloon(self,event)
 	fog:setFillColor(0,0,0)
 	fog.alpha=0.5
 	restartBtn = widget.newButton{
+		textOnly=true,
 		label="restart",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
@@ -517,7 +488,37 @@ pauseBtn:toBack()
 
 
 end
+local function onOkBtnRelease()
+	audio.play(click )
 
+	physics.start()
+
+
+	timer.resume( timerNewBird )
+	background:addEventListener("touch", shift)
+display.remove(fog)
+background:remove( okBtn )
+
+backBtn:toFront()
+backBtn:setEnabled(true)
+
+
+
+
+pauseBtn:toFront()
+pauseBtn:setEnabled(true)
+
+
+
+-- local function offScreen(object)
+-- 	local bounds = object.contentBounds
+-- 	local sox, soy = display.screenOriginX, display.screenOriginY
+-- 	if bounds.xMax < sox then return true end
+-- 	if bounds.yMax < soy then return true end
+-- 	if bounds.xMin > display.actualContentWidth - sox then return true end
+-- 	if bounds.yMin > display.actualContentHeight - soy then return true end
+-- 	return false
+end
 
 local function enterFrame(event)
 
@@ -602,7 +603,7 @@ end
 local function newBird(event)
 	audio.play(tweet, {channel=1})
 	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
-	timerNewBird=timer.performWithDelay( math.random(1,2)*500, newBird )
+	timerNewBird=timer.performWithDelay( math.random(1,4)*500, newBird )
 
 end
 
@@ -661,8 +662,28 @@ function scene:show( event )
 			timer.pause(timerNewBird)
 		physics.pause()
 		pauseBtn:toBack()
+		pauseBtn:setEnabled(false)
+
 		backBtn:toBack()
-	okBtn:toFront()
+		backBtn:setEnabled(false)
+
+
+		okBtn= widget.newButton{
+			textOnly=true,
+			label="ok!",
+			labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
+			default="button.png",
+			over="button-over.png",
+			width=154, height=40,
+			onRelease = onOkBtnRelease	-- event listener function
+		}
+		okBtn.x = display.contentCenterX
+		okBtn.y = display.contentCenterY
+		background:insert( okBtn )
+
+
+
+
 	loadTutorial()
 table.insert( tutorial, 1, false )
 saveTutorial()
