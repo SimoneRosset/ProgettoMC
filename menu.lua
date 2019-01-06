@@ -184,7 +184,7 @@ function scene:create( event )
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
+		width=200, height=50,
 		onRelease = onPlayBtnRelease	-- event listener function
 	}
 	playBtn.x = display.contentCenterX
@@ -196,7 +196,7 @@ function scene:create( event )
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
+		width=200, height=50,
 		onRelease = onHighBtnRelease	-- event listener function
 	}
 	highBtn.x = display.contentCenterX
@@ -208,7 +208,7 @@ function scene:create( event )
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
+		width=200, height=50,
 		onRelease = onTutorialBtnRelease	-- event listener function
 	}
 	tutorialBtn.x = display.contentCenterX
@@ -284,12 +284,12 @@ function scene:show( event )
 
 	local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
 -- for i=1,20 do
-	corda=display.newImageRect( sceneGroup, "corda.png", 2,grass.y-grass.height-balloon.y)
+	corda=display.newImageRect( sceneGroup, "corda.png", 1,grass.y-grass.height-balloon.y)
 -- 	physics.addBody( corda[i], "static" )
 --
 -- end
 corda.x,corda.y=balloon.x,balloon.y+balloon.height
-corda.alpha=0.6
+corda.alpha=0.4
 
 -- rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
 --

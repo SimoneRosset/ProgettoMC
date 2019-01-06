@@ -114,7 +114,7 @@ end
 
 ----------------------------aggiunte da codice precedente-----------------------
 local velocity=220
-local move=5
+local move=velocity/70
 local score = display.newText( 0, display.contentCenterX, 40, native.systemFont, 50 )
 score:setFillColor( 0, 0, 0 )
 local record = display.newText( "record: "..actualRecord, display.contentCenterX, 70, native.systemFont, 15 )
@@ -147,8 +147,12 @@ local function onRestartBtnRelease()
 	audio.play( click )
 
 	-- go to game.lua scene
+  display.remove(restartBtn)
+
 	display.remove(fog)
  display.remove( time )
+ display.remove( result )
+
 	physics.stop()
 	loadScores()
 	-- Insert the saved score from the last game into the table, then reset it
@@ -171,25 +175,42 @@ local function shift(event)
 	if event.phase == "began" then
 				held=true;
 
+
 		elseif event.phase == "moved" and held then
-			if balloon.x==event.x then
-						balloon.rotation = 0
-				end
+
 			if balloon.x<event.x then
 					balloon.x=balloon.x+move
-						balloon.rotation = (event.x-balloon.x)/5 --accompagna lo spostamento con una inclinazione
 				end
 					if balloon.x>event.x then
 							balloon.x=balloon.x-move
-							balloon.rotation = (event.x-balloon.x)/5
 
 						end
+            corda.x=balloon.x
+            finger.x=event.x
+            finger.y=event.y
+corda.height=math.sqrt((event.y-display.contentCenterY*1.3)^2+(event.x-balloon.x)^2)
+
+              rotazioneRad=-math.atan2((event.y-display.contentCenterY*1.3),(event.x-balloon.x))
+rotazione= math.deg(rotazioneRad+math.pi/2)
+
+                  balloon.rotation = -rotazione--accompagna lo spostamento con una inclinazione
+                  corda.rotation= -rotazione
+
+
+
+
 
 		elseif event.phase == "ended" or event.phase == "cancelled" then
 				held=false
-				balloon.rotation = 0
 
-		else held=false
+				balloon.rotation = 0
+        corda.rotation=0
+        if corda.height<balloon.height then
+        corda.height=balloon.height
+        end
+        finger.x,finger.y=corda.x, corda.y+corda.height
+		else
+       held=false
 		end
 end
 
@@ -205,7 +226,7 @@ display.remove( fog )
 	physics.start()
  display.remove(time)
 	timer.resume(timerNewBird)
-	background:addEventListener("touch", shift)
+	finger:addEventListener("touch", shift)
 	press=false
 	secondi=3
 
@@ -257,7 +278,7 @@ fog.x = 0 + display.screenOriginX
 fog.y = 0 + display.screenOriginY
 fog:setFillColor(0,0,0)
 fog.alpha=0.5
-	background:removeEventListener("touch", shift)
+	finger:removeEventListener("touch", shift)
 timer.pause(timerNewBird)
 physics.pause()
 pause,press=true, false
@@ -283,7 +304,7 @@ loadTutorial()
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
+		width=200, height=50,
 		onRelease = onBackBtnRelease	-- event listener function
 	}
 	backBtn.x = display.contentCenterX*0.2
@@ -296,7 +317,7 @@ loadTutorial()
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
+		width=200, height=50,
 		onRelease = onPauseBtnRelease	-- event listener function
 	}
 	pauseBtn.x = display.contentCenterX*1.8
@@ -356,10 +377,18 @@ background:insert(pauseBtn)
 
 	balloon=balloon.new(world, display.contentCenterX,  display.contentCenterY*1.3)
 
+corda=display.newImageRect( background, "corda.png",  1, balloon.height )
+corda.x=balloon.x
+corda.y=balloon.y
+corda.anchorX=0
+corda.anchorY=0
+corda.alpha=0.3
+
+finger=display.newImageRect( background, "touch.png",25, 25 )
+finger.x,finger.y=balloon.x, corda.y+corda.height
+finger.alpha=0.4
 	-- world:insert( balloon )
-cordag=display.newGroup()
-sceneGroup:insert(cordag)
-world:insert(cordag)
+
 
 cloudg=display.newGroup()
 sceneGroup:insert(cloudg)
@@ -368,7 +397,6 @@ world:insert( cloudg )
 birdg=display.newGroup()
 sceneGroup:insert(birdg)
 world:insert( birdg )
-
 
 -- corda[1]=display.newImageRect( cordag, "corda.png", 2,4 )
 -- corda[1].x,corda[1].y=balloon.x,balloon.y+25
@@ -441,10 +469,14 @@ end
 
 local function onCollisionBalloon(self,event)
 	audio.play(pop)
+  	finger:removeEventListener("touch", shift)
 	Runtime:removeEventListener("enterFrame", enterFrame)
-	background:removeEventListener("touch", shift)
 	balloon:setSequence("boom")
 	balloon:play()
+  display.remove(finger)
+  display.remove(corda)
+
+
 	physics.pause()
 	timer.cancel( timerNewBird )
 	fog=display.newImageRect( "background.png", display.actualContentWidth, display.actualContentHeight )
@@ -460,22 +492,24 @@ local function onCollisionBalloon(self,event)
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
+		width=300, height=100,
 		onRelease = onRestartBtnRelease	-- event listener function
 	}
 
 	restartBtn.x = display.contentCenterX
 	restartBtn.y = display.contentCenterY*1.3
-	background:insert( restartBtn )
 
-	background:remove(score)
+	display.remove(score)
+  display.remove(record)
+
 	time = display.newText( "score: " .. actualScore, display.contentCenterX, display.contentCenterY, native.systemFont, 50 )
 	 time:setFillColor( 0, 0, 0 )
 	 composer.setVariable( "finalScore", actualScore )
-	 record.x,record.y=display.contentCenterX,display.contentCenterY*1.15
-	 record.alpha=1
-	 if actualScore>=actualRecord then
-		 record.text="newRecord: "..actualScore.."!"
+    result = display.newText( "record: " .. actualRecord, display.contentCenterX, display.contentCenterY*1.15, native.systemFont, 15 )
+   result:setFillColor( 0, 0, 0 )
+
+	 if actualScore>actualRecord then
+		 result.text="newRecord: "..actualScore.."!"
 		 composer.setVariable( "record", actualScore )
 
 
@@ -592,12 +626,14 @@ if not birdg[i]==nil then
 	-- 		end
 	-- 	end
 velocity=velocity+(actualScore/500)
+move=velocity/70
 	-- easiest way to scroll a map based on a character
 	-- find the difference between the hero and the display center
 	-- and move the world to compensate
 	local hx, hy = balloon:localToContent(0,0)
 	hx, hy = display.contentCenterX - hx, display.contentCenterY*1.3 - hy
 	world.y = world.y + hy
+
 
 end
 local function newBird(event)
@@ -627,7 +663,9 @@ function scene:show( event )
 		physics.addBody( grass,"static", {  density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
 
 		physics.addBody( balloon, "dynamic", { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
-		-- for i=1,10 do
+
+
+  	-- for i=1,10 do
 		-- 	corda[i]=display.newImageRect( world, "corda.png", 2,4 )
 		-- end
 		-- corda[1].x,corda[1].y=balloon.x,balloon.y+20
@@ -644,7 +682,7 @@ function scene:show( event )
 		--
 		-- end
 		Runtime:addEventListener("enterFrame", enterFrame)
-		background:addEventListener("touch", shift)
+		finger:addEventListener("touch", shift)
 		timerNewBird=timer.performWithDelay( math.random(1,2)*1500, newBird )
 		balloon.collision=onCollisionBalloon
 		balloon:addEventListener("collision")
@@ -674,7 +712,7 @@ function scene:show( event )
 			labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 			default="button.png",
 			over="button-over.png",
-			width=154, height=40,
+			width=200, height=50,
 			onRelease = onOkBtnRelease	-- event listener function
 		}
 		okBtn.x = display.contentCenterX
