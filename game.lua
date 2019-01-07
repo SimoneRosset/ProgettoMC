@@ -1,9 +1,3 @@
------------------------------------------------------------------------------------------
---
--- level1.lua
---
------------------------------------------------------------------------------------------
-
 local composer = require( "composer" )
 local scene = composer.newScene()
 local widget = require "widget"
@@ -11,6 +5,7 @@ local pause, press=false, false
 local backBtn
 local pauseBtn
 local restartBtn
+local result
 local pop = audio.loadSound( "pop.wav" )
 local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
@@ -62,8 +57,6 @@ end
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
--- create()
-
     -- Code here runs when the scene is first created but has not yet appeared on screen
     -- Load the previous scores
 
@@ -108,13 +101,10 @@ local function saveTutorial()
     end
 end
 
--- = composer.getVariable( "tutorial" )
--- composer.setVariable( "tutorial", scoresTable[4] )
---
 
 ----------------------------aggiunte da codice precedente-----------------------
 local velocity=220
-local move=2
+local move=velocity/70
 local score = display.newText( 0, display.contentCenterX, 40, native.systemFont, 50 )
 score:setFillColor( 0, 0, 0 )
 local record = display.newText( "record: "..actualRecord, display.contentCenterX, 70, native.systemFont, 15 )
@@ -135,6 +125,8 @@ local function onBackBtnRelease()
 	-- go to game.lua scene
 	display.remove(fog)
  display.remove( time )
+ display.remove(restartBtn)
+ display.remove( result )
 	physics.stop()
 	timer.cancel( timerNewBird )
 
@@ -147,8 +139,12 @@ local function onRestartBtnRelease()
 	audio.play( click )
 
 	-- go to game.lua scene
+  display.remove(restartBtn)
+
 	display.remove(fog)
  display.remove( time )
+ display.remove( result )
+
 	physics.stop()
 	loadScores()
 	-- Insert the saved score from the last game into the table, then reset it
@@ -171,25 +167,44 @@ local function shift(event)
 	if event.phase == "began" then
 				held=true;
 
+
 		elseif event.phase == "moved" and held then
-			if balloon.x==event.x then
-						balloon.rotation = 0
-				end
+
 			if balloon.x<event.x then
 					balloon.x=balloon.x+move
-						balloon.rotation = (event.x-balloon.x)/5 --accompagna lo spostamento con una inclinazione
 				end
 					if balloon.x>event.x then
 							balloon.x=balloon.x-move
-							balloon.rotation = (event.x-balloon.x)/5
 
 						end
+            corda.x=balloon.x
+            finger.x=event.x
+            finger.y=event.y
+corda.height=math.sqrt((event.y-display.contentCenterY*1.3)^2+(event.x-balloon.x)^2)
+
+              rotazioneRad=-math.atan2((event.y-display.contentCenterY*1.3),(event.x-balloon.x))
+rotazione= math.deg(rotazioneRad+math.pi/2)
+
+                  balloon.rotation = -rotazione--accompagna lo spostamento con una inclinazione
+                  corda.rotation= -rotazione
+
+
+
+
 
 		elseif event.phase == "ended" or event.phase == "cancelled" then
 				held=false
-				balloon.rotation = 0
 
-		else held=false
+				balloon.rotation = 0
+        corda.rotation=0
+        if corda.height<balloon.height then
+        corda.height=balloon.height
+        end
+        if not (finger==nil or corda==nil) then
+        finger.x,finger.y=corda.x, corda.y+corda.height
+      end
+		else
+       held=false
 		end
 end
 
@@ -205,17 +220,10 @@ display.remove( fog )
 	physics.start()
  display.remove(time)
 	timer.resume(timerNewBird)
-	background:addEventListener("touch", shift)
+	finger:addEventListener("touch", shift)
 	press=false
 	secondi=3
 
-	-- secondi=3
--- else
-	-- time = display.newText( 0, display.contentCenterX, display.contentCenterY, native.systemFont, 200 )
-	-- time:setFillColor( 0, 0, 0 )
-	-- time.text= secondi
-	-- timerPause=timer.performWithDelay( 1000, ready, secondi )
--- end
 end
 
 
@@ -232,17 +240,12 @@ end
 local function onPauseBtnRelease()
 	audio.play( click )
 
-	-- go to game.lua scene
 	if pause and not press then
 		pauseBtn:setLabel("")
-		-- secondi=3
 
 		 time.text= secondi
 		watch=timer.performWithDelay( 1000, clock , secondi )
 		timerPause=timer.performWithDelay( 3000, ready, secondi )
-		-- time = display.newText( 0, display.contentCenterX, display.contentCenterY, native.systemFont, 200 )
-		-- time:setFillColor( 0, 0, 0 )
-		-- background:insert(time)
 		pause, press=false, true
 elseif not press then
 	pauseBtn:setLabel("start")
@@ -257,7 +260,7 @@ fog.x = 0 + display.screenOriginX
 fog.y = 0 + display.screenOriginY
 fog:setFillColor(0,0,0)
 fog.alpha=0.5
-	background:removeEventListener("touch", shift)
+	finger:removeEventListener("touch", shift)
 timer.pause(timerNewBird)
 physics.pause()
 pause,press=true, false
@@ -265,29 +268,7 @@ end
 
 		-- indicates successful touch
 end
-local function onOkBtnRelease()
-	audio.play(click )
 
-	physics.start()
-
-
-	timer.resume( timerNewBird )
-	background:addEventListener("touch", shift)
-display.remove(fog)
-okBtn:toBack()
-backBtn:toFront()
-pauseBtn:toFront()
-
-
--- local function offScreen(object)
--- 	local bounds = object.contentBounds
--- 	local sox, soy = display.screenOriginX, display.screenOriginY
--- 	if bounds.xMax < sox then return true end
--- 	if bounds.yMax < soy then return true end
--- 	if bounds.xMin > display.actualContentWidth - sox then return true end
--- 	if bounds.yMin > display.actualContentHeight - soy then return true end
--- 	return false
-end
 
 function scene:create( event )
 
@@ -300,46 +281,30 @@ function scene:create( event )
 loadScores()
 loadTutorial()
 	backBtn = widget.newButton{
+		textOnly=true,
 		label="back",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
+		width=200, height=50,
 		onRelease = onBackBtnRelease	-- event listener function
 	}
 	backBtn.x = display.contentCenterX*0.2
-	backBtn.y = display.contentCenterY-display.contentCenterY*1.1
+	backBtn.y = display.contentCenterY-display.contentCenterY
 	sceneGroup:insert( backBtn )
 
 	pauseBtn = widget.newButton{
+		textOnly=true,
 		label="pause",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
+		width=200, height=50,
 		onRelease = onPauseBtnRelease	-- event listener function
 	}
 	pauseBtn.x = display.contentCenterX*1.8
-	pauseBtn.y = display.contentCenterY-display.contentCenterY*1.1
+	pauseBtn.y = display.contentCenterY-display.contentCenterY
 	sceneGroup:insert( pauseBtn )
-
-	okBtn= widget.newButton{
-		label="ok!",
-		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
-		default="button.png",
-		over="button-over.png",
-		width=154, height=40,
-		onRelease = onOkBtnRelease	-- event listener function
-	}
-	okBtn.x = display.contentCenterX
-	okBtn.y = display.contentCenterY
-	sceneGroup:insert( okBtn )
-okBtn:toBack()
-
-	-- We need physics started to add bodies, but we don't want the simulaton
- 	-- running until the scene is on the screen.
-	--physics.start()
-	--physics.pause()
 
 
 	sky = display.newImageRect( "background.png", screenW, screenH )
@@ -349,12 +314,6 @@ okBtn:toBack()
 	sky.y = 0 + display.screenOriginY
 	sky:setFillColor( 0.9)
 
-	-- make a crate (off-screen), position it, and rotate slightly
-	-- balloon = display.newImageRect( "balloon.png", 50, 50 )
-	-- balloon.x, balloon.y = halfW, halfH --questo coefficiente posiziona il palloncino ad un'altezza intermedia
-	-- physics.addBody( balloon, { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
-
-	--crate.rotation = 15
 
 	-- add physics to the crate
 	-- create a grass object and add physics (with custom shape)
@@ -364,14 +323,7 @@ okBtn:toBack()
 	--  draw the grass at the very bottom of the screen
 	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.8 + display.screenOriginY
 
-
-	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
-	--grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
-	--physics.addBody( grass, "static", { friction=0.3, shape=grassShape } )
 	-- all display objects must be inserted into group
-	--sceneGroup:insert( background )
-	--sceneGroup:insert( grass)
-	--sceneGroup:insert( balloon )
 	background= display.newGroup()
 	sceneGroup:insert(background)
 	background:insert( sky )
@@ -387,94 +339,46 @@ background:insert(pauseBtn)
 
 	balloon=balloon.new(world, display.contentCenterX,  display.contentCenterY*1.3)
 
+corda=display.newImageRect( background, "corda.png",  1, balloon.height )
+corda.x=balloon.x
+corda.y=balloon.y
+corda.anchorX=0
+corda.anchorY=0
+corda.alpha=0.3
+
+finger=display.newImageRect( background, "touch.png",40, 40 )
+finger.x,finger.y=balloon.x, corda.y+corda.height
+finger.alpha=0.4
 	-- world:insert( balloon )
-cordag=display.newGroup()
-sceneGroup:insert(cordag)
-world:insert(cordag)
+
+  birdg=display.newGroup()
+  sceneGroup:insert(birdg)
+  world:insert( birdg )
 
 cloudg=display.newGroup()
 sceneGroup:insert(cloudg)
 world:insert( cloudg )
 
-birdg=display.newGroup()
-sceneGroup:insert(birdg)
-world:insert( birdg )
 
-
--- corda[1]=display.newImageRect( cordag, "corda.png", 2,4 )
--- corda[1].x,corda[1].y=balloon.x,balloon.y+25
--- physics.addBody( corda[1])
--- pivot=physics.newJoint( "rope",balloon , corda[1],0,25,0,25 )
---
---
--- for i=2,(display.contentCenterY*0.1) do
--- 	corda[i]=display.newImageRect( cordag, "corda.png", 2,4 )
---
--- 	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
--- 	physics.addBody( corda[i])
---
--- 	pivot=physics.newJoint( "rope", corda[i-1], corda[i],0,2,0,2)
--- end
-
-
-
-
--- b = display.newImageRect(world, "bird01.png",50,50)
--- b.x,b.y=100,100
 	for _= 1, 10 do
-		-- local cloudImages = { "cloud.png", "cloud2.png" }
-		-- local temp=math.random(20,150)
-		-- local cloud = display.newImageRect(cloudg, cloudImages[math.random(#cloudImages)],temp,temp/2)
-		-- cloud.anchorX, cloud.anchorY = 0.5, 1
-		-- cloud.x, cloud.y = math.random(display.actualContentWidth), math.random(0, display.actualContentHeight*2)*math.random(-3,-1)
+		
 clouds.new(cloudg, math.random(display.actualContentWidth), math.random(0, display.actualContentHeight)*math.random(-3,-1))
-		 --cloud._xScale = math.random()/2 + 0.75
-		 --cloud.xScale, cloud.yScale = cloud._xScale, cloud._xScale
-		--cloud:setFillColor(color.hex2rgb("6D9DC5"))
+		
 	end
--- for _=1,2 do
--- 	birds.new(birdg, (math.random(1,2)-1)*screenW, balloon.y-display.actualContentHeight/(_*2))
--- end
-
---terrain={}
---terrain[1] = sky
--- function spawnAir()
--- 	local x,y = terrain[#terrain][1].x, terrain[#terrain][1].y
--- 	sky2 = display.newImageRect( "background.png", screenW, screenH )
--- 	sky2.anchorX = 0
--- 	sky2.anchorY = 0
--- 	sky2.x = x
--- 	sky2.y = y
--- 	sky2:setFillColor( 1 )
--- 		terrain[#terrain+1] = sky2
--- 		terrain[#terrain]:toBack()
--- end
-
-	-- create a grey rectangle as the backdrop
-	-- the physical screen will likely be a different shape than our defined content area
-	-- since we are going to position the background from it's top, left corner, draw the
-	-- background at the real top, left corner.
-
-
-
-
-	--function move(event)
-	  --back.y=back.y+velocity
-	  --balloon.y=balloon.y-velocity
-	--end
-
-
-	--back:addEventListener( "touch", move )
-
-	---------------------------------------------------------------------------------
 
 end
+
 local function onCollisionBalloon(self,event)
 	audio.play(pop)
+  	finger:removeEventListener("touch", shift)
 	Runtime:removeEventListener("enterFrame", enterFrame)
-	background:removeEventListener("touch", shift)
 	balloon:setSequence("boom")
 	balloon:play()
+finger:toBack()
+corda:toBack()
+
+
+
 	physics.pause()
 	timer.cancel( timerNewBird )
 	fog=display.newImageRect( "background.png", display.actualContentWidth, display.actualContentHeight )
@@ -485,26 +389,29 @@ local function onCollisionBalloon(self,event)
 	fog:setFillColor(0,0,0)
 	fog.alpha=0.5
 	restartBtn = widget.newButton{
+		textOnly=true,
 		label="restart",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
+		width=300, height=100,
 		onRelease = onRestartBtnRelease	-- event listener function
 	}
 
 	restartBtn.x = display.contentCenterX
 	restartBtn.y = display.contentCenterY*1.3
-	background:insert( restartBtn )
 
-	background:remove(score)
+	display.remove(score)
+  display.remove(record)
+
 	time = display.newText( "score: " .. actualScore, display.contentCenterX, display.contentCenterY, native.systemFont, 50 )
 	 time:setFillColor( 0, 0, 0 )
 	 composer.setVariable( "finalScore", actualScore )
-	 record.x,record.y=display.contentCenterX,display.contentCenterY*1.15
-	 record.alpha=1
-	 if actualScore>=actualRecord then
-		 record.text="newRecord: "..actualScore.."!"
+    result = display.newText( "record: " .. actualRecord, display.contentCenterX, display.contentCenterY*1.15, native.systemFont, 15 )
+   result:setFillColor( 0, 0, 0 )
+
+	 if actualScore>actualRecord then
+		 result.text="newRecord: "..actualScore.."!"
 		 composer.setVariable( "record", actualScore )
 
 
@@ -517,7 +424,29 @@ pauseBtn:toBack()
 
 
 end
+local function onOkBtnRelease()
+	audio.play(click )
 
+	physics.start()
+
+
+	timer.resume( timerNewBird )
+	background:addEventListener("touch", shift)
+display.remove(fog)
+background:remove( okBtn )
+
+backBtn:toFront()
+backBtn:setEnabled(true)
+
+
+
+
+pauseBtn:toFront()
+pauseBtn:setEnabled(true)
+
+
+
+end
 
 local function enterFrame(event)
 
@@ -550,17 +479,12 @@ if -(balloon.y-halfH)/100>actualScore then
 else
 	score.text=actualScore
 end
--- if -vy > velocity*100 then
--- 	physics.setGravity( 0, 0 )
---
--- end -- terminal velocity
-	--balloon:setLinearVelocity(0,vy)
+
 	-- recycle old buildings (pass 1)
 		for i = 1, cloudg.numChildren do
-			local y = cloudg[i].y --and world[i].contentBounds.xMax or 0
-			--if buildings[i] then buildings[i]:translate(-vx/topSpeed*6,0) end
+			local y = cloudg[i].y 
 			if y > balloon.y+display.actualContentHeight then
-				--display.remove(world[i])
+				
 
 
 				cloudg[i]:translate(0, math.random(display.actualContentHeight,display.actualContentHeight*2)*-2) --math.random(display.actualContentWidth), math.random(display.actualContentHeight)*-2
@@ -580,17 +504,9 @@ if not birdg[i]==nil then
  if actualScore>=actualRecord then
 	 bestScore()
  end
-	-- -- recycle old buildings (pass 2)
-	-- 	for i = 1, background.numChildren do
-	-- 		-- background[i].rotation = world.rotation * 0.85
-	-- 		-- background[i].xScale, background[i].yScale = background[i]._xScale + (worldScale / 2),background[i]._xScale + (worldScale / 2)
-	-- 		-- background[i].x = background[i].x - (6 * (vx / topSpeed) * background[i].xScale )
-	-- 		local x = background[i].contentBounds.xMax
-	-- 		if x < -display.actualContentWidth then
-	-- 			background[i]:translate(display.actualContentWidth*3,0)
-	-- 		end
-	-- 	end
+	
 velocity=velocity+(actualScore/500)
+move=velocity/70
 	-- easiest way to scroll a map based on a character
 	-- find the difference between the hero and the display center
 	-- and move the world to compensate
@@ -598,18 +514,18 @@ velocity=velocity+(actualScore/500)
 	hx, hy = display.contentCenterX - hx, display.contentCenterY*1.3 - hy
 	world.y = world.y + hy
 
+
 end
 local function newBird(event)
 	audio.play(tweet, {channel=1})
 	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
-	timerNewBird=timer.performWithDelay( math.random(1,2)*500, newBird )
+	timerNewBird=timer.performWithDelay( math.random(1,4)*500, newBird )
 
 end
 
 
 
 function scene:show( event )
---local sceneGroup = self.view
 	local phase = event.phase
 
 	if phase == "will" then
@@ -617,33 +533,17 @@ function scene:show( event )
 
 	elseif phase == "did" then
 		-- Called when the scene is now on screen
-		-- INSERT code here to make the scene come alive
-		-- e.g. start timers, begin animation, play audio, etc.
-		--physics.start()
 
 		physics.start()
 		physics.setGravity(0,5)
 		physics.addBody( grass,"static", {  density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
 
 		physics.addBody( balloon, "dynamic", { radius=15, density=0.1, friction=0.1, bounce=0.2 } ) --{ density=1.0, friction=1, bounce=0.3 }
-		-- for i=1,10 do
-		-- 	corda[i]=display.newImageRect( world, "corda.png", 2,4 )
-		-- end
-		-- corda[1].x,corda[1].y=balloon.x,balloon.y+20
-		-- physics.addBody( corda[1], "dynamic",{ density=0 } )
-		--
-		-- rope=physics.newJoint( "pivot", balloon, corda[1],0,1)
-		--
-		-- balloon:toFront()
-		-- for i=2, 10 do
-		-- 	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
-		-- 	physics.addBody( corda[i], "dynamic",{  density=0 } )
-		--
-		-- 	rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,1)
-		--
-		-- end
+
+
+ 
 		Runtime:addEventListener("enterFrame", enterFrame)
-		background:addEventListener("touch", shift)
+		finger:addEventListener("touch", shift)
 		timerNewBird=timer.performWithDelay( math.random(1,2)*1500, newBird )
 		balloon.collision=onCollisionBalloon
 		balloon:addEventListener("collision")
@@ -657,12 +557,32 @@ function scene:show( event )
 			fog.y = 0 + display.screenOriginY
 			fog:setFillColor(0.5,0.5,0.5)
 			fog.alpha=0.4
-				background:removeEventListener("touch", shift)
+				finger:removeEventListener("touch", shift)
 			timer.pause(timerNewBird)
 		physics.pause()
 		pauseBtn:toBack()
+		pauseBtn:setEnabled(false)
+
 		backBtn:toBack()
-	okBtn:toFront()
+		backBtn:setEnabled(false)
+
+
+		okBtn= widget.newButton{
+			textOnly=true,
+			label="ok!",
+			labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
+			default="button.png",
+			over="button-over.png",
+			width=200, height=50,
+			onRelease = onOkBtnRelease	-- event listener function
+		}
+		okBtn.x = display.contentCenterX
+		okBtn.y = display.contentCenterY
+		background:insert( okBtn )
+
+
+
+
 	loadTutorial()
 table.insert( tutorial, 1, false )
 saveTutorial()
@@ -672,7 +592,6 @@ saveTutorial()
 end
 
 function scene:hide( event )
-	--local sceneGroup = self.view
 
 	local phase = event.phase
 
@@ -680,16 +599,9 @@ function scene:hide( event )
 		-- Called when the scene is on screen and is about to move off screen
 		--
 		timer.cancel(timerNewBird)
-		-- INSERT code here to pause the scene
-		-- e.g. stop timers, stop animation, unload sounds, etc.)
-		--physics.stop()
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
-		-- Runtime:removeEventListener("enterFrame", enterFrame)
-		-- background:removeEventListener("touch", shift)
-		-- balloon:removeEventListener("collision")
-		-- physics.pause()
-		-- composer.removeScene()
+		
 	end
 
 end
@@ -702,10 +614,7 @@ function scene:destroy( event )
 		pauseBtn = nil
 	end
 	-- Called prior to the removal of scene's "view" (sceneGroup)
-	--
-	-- INSERT code here to cleanup the scene
-	-- e.g. remove display objects, remove touch listeners, save state, etc.
-	--local sceneGroup = self.view
+	
 	audio.dispose(tweet)
 	tweet=nil
 	audio.dispose( pop )
@@ -713,8 +622,7 @@ function scene:destroy( event )
 	click=nil
 	pop=nil
 
-	--package.loaded[physics] = nil
-	--physics = nil
+	
 end
 
 ---------------------------------------------------------------------------------
