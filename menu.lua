@@ -1,8 +1,4 @@
------------------------------------------------------------------------------------------
---
--- menu.lua
---
------------------------------------------------------------------------------------------
+
 
 local composer = require( "composer" )
 local scene = composer.newScene()
@@ -19,7 +15,6 @@ local tweet = audio.loadSound( "tweet.wav" )
 audio.reserveChannels( 1 )
 audio.setMaxVolume( 0.2, {channel=1})
 
--- local corda={}
 local json = require( "json" )
 
 local scoresTable = {}
@@ -134,9 +129,7 @@ function scene:create( event )
 
 
 	-- Called when the scene's view does not exist.
-	--
-	-- INSERT code here to initialize the scene
-	-- e.g. add display objects to 'sceneGroup', add touch listeners, etc.
+
 
 	-- display a background image
 	local backgroundM = display.newImageRect( "background.png", display.actualContentWidth, display.actualContentHeight )
@@ -153,20 +146,6 @@ function scene:create( event )
 
 
 
-	-- local image = display.newImageRect( "balloon.png", 50, 50 )
-	-- image.x, image.y = display.contentCenterX,  display.contentCenterY
-	-- image.alpha= 0.7
-
--- 	cloud1 = display.newImageRect( "cloud.png", 100, 45 )
--- 	cloud1.x, cloud1.y = halfW*0.5, halfH*0.3
--- cloud1.alpha=0.7
--- cloud2 = display.newImageRect( "cloud2.png", 85, 25 )
--- cloud2.x, cloud2.y = halfW*1.5, halfH*0.5
--- cloud2.alpha=0.7
--- cloud3 = display.newImageRect( "cloud2.png", 150, 80 )
--- cloud3.x, cloud3.y = halfW*0.8, halfH*0.2
--- cloud3.alpha=0.7
-
 
 	grass = display.newImageRect( "ground.png", screenW, screenH)
 	grass.anchorX = 0
@@ -174,41 +153,40 @@ function scene:create( event )
 	--  draw the grass at the very bottom of the screen
 	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.8 + display.screenOriginY
   grass.alpha=0.7
-	-- define a shape that's slightly shorter than image bounds (set draw mode to "hybrid" or "debug" to see)
-	--grassShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
+	
 
 	-- create a widget button (which will loads level1.lua on release)
 	playBtn = widget.newButton{
+		textOnly=true,
 		label="play",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
-		textOnly = true,
+		width=200, height=50,
 		onRelease = onPlayBtnRelease	-- event listener function
 	}
 	playBtn.x = display.contentCenterX
 	playBtn.y = display.contentCenterY*0.8
 
 	highBtn = widget.newButton{
+		textOnly=true,
 		label="highScore",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
-		textOnly = true,
+		width=200, height=50,
 		onRelease = onHighBtnRelease	-- event listener function
 	}
 	highBtn.x = display.contentCenterX
 	highBtn.y = display.contentCenterY*0.95
 
 	tutorialBtn = widget.newButton{
+		textOnly=true,
 		label="tutorial",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
-		width=154, height=40,
-		textOnly = true,
+		width=200, height=50,
 		onRelease = onTutorialBtnRelease	-- event listener function
 	}
 	tutorialBtn.x = display.contentCenterX
@@ -217,10 +195,7 @@ function scene:create( event )
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
 
-	-- sceneGroup:insert( image )
-	-- sceneGroup:insert( cloud1 )
-	-- sceneGroup:insert( cloud2 )
-	-- sceneGroup:insert( cloud3 )
+
 	sceneGroup:insert( grass )
 	sceneGroup:insert( titleLogo )
 	sceneGroup:insert( playBtn )
@@ -283,35 +258,23 @@ function scene:show( event )
 		end
 
 	local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
-	balloon.alpha=0.7
--- for i=1,20 do
-	corda=display.newImageRect( sceneGroup, "corda.png", 2,grass.y-grass.height-balloon.y)
--- 	physics.addBody( corda[i], "static" )
---
--- end
-corda.x,corda.y=balloon.x,balloon.y*1.23
-corda.alpha=0.7
+	corda=display.newImageRect( sceneGroup, "corda.png", 1,grass.y-grass.height-balloon.y)
 
--- rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
---
+corda.x,corda.y=balloon.x,balloon.y+balloon.height
+corda.alpha=0.4
+
+
 balloon:toFront()
--- for i=2,#corda do
--- 	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
--- 	rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,2,0,2)
---
--- end
 
 
 
 
-		-- Called when the scene is still off screen and is about to move on screen
+
+		
 	elseif phase == "did" then
-		-- Called when the scene is now on screen
-		--
+		
 
 
-
-		-- physics.setGravity(0,0)
 		timerNewBird=timer.performWithDelay( math.random(1,2)*2000, newBird )
 
 		Runtime:addEventListener("enterFrame", enterFrame)
@@ -330,8 +293,7 @@ function scene:hide( event )
 		timer.cancel(timerNewBird)
 		physics.stop()
 
-		-- INSERT code here to pause the scene
-		-- e.g. stop timers, stop animation, unload sounds, etc.)
+		
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
 		Runtime:removeEventListener("enterFrame", enterFrame)
@@ -349,8 +311,7 @@ function scene:destroy( event )
 	click=nil
 	audio.dispose(tweet)
 	tweet=nil
-	-- INSERT code here to cleanup the scene
-	-- e.g. remove display objects, remove touch listeners, save state, etc.
+	
 	Runtime:removeEventListener("enterFrame", enterFrame)
 
 	if playBtn then
