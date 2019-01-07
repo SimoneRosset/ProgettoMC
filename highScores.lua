@@ -79,7 +79,7 @@ function scene:create( event )
     local background = display.newImageRect( sceneGroup, "background.png", 800, 1400 )
    background.x = display.contentCenterX
    background.y = display.contentCenterY
-   background:setFillColor( 0.7)
+   background:setFillColor( 0.9)
 
    grass = display.newImageRect( sceneGroup, "ground.png", screenW, screenH)
   grass.anchorX = 0

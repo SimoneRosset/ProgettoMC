@@ -11,6 +11,7 @@ local pause, press=false, false
 local backBtn
 local pauseBtn
 local restartBtn
+local result
 local pop = audio.loadSound( "pop.wav" )
 local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
@@ -135,6 +136,8 @@ local function onBackBtnRelease()
 	-- go to game.lua scene
 	display.remove(fog)
  display.remove( time )
+ display.remove(restartBtn)
+ display.remove( result )
 	physics.stop()
 	timer.cancel( timerNewBird )
 
@@ -174,7 +177,7 @@ local function shift(event)
 
 	if event.phase == "began" then
 				held=true;
-
+finger.alpha=0.8
 
 		elseif event.phase == "moved" and held then
 
@@ -205,10 +208,12 @@ rotazione= math.deg(rotazioneRad+math.pi/2)
 
 				balloon.rotation = 0
         corda.rotation=0
+
         if corda.height<balloon.height then
         corda.height=balloon.height
         end
         finger.x,finger.y=corda.x, corda.y+corda.height
+      finger.alpha=0.2
 		else
        held=false
 		end
@@ -337,7 +342,6 @@ loadTutorial()
 	sky.anchorY = 0
 	sky.x = 0 + display.screenOriginX
 	sky.y = 0 + display.screenOriginY
-	sky:setFillColor( 0.9)
 
 	-- make a crate (off-screen), position it, and rotate slightly
 	-- balloon = display.newImageRect( "balloon.png", 50, 50 )
@@ -384,19 +388,20 @@ corda.anchorX=0
 corda.anchorY=0
 corda.alpha=0.3
 
-finger=display.newImageRect( background, "touch.png",25, 25 )
+finger=display.newImageRect( background, "touch.png",60, 60 )
 finger.x,finger.y=balloon.x, corda.y+corda.height
-finger.alpha=0.4
+finger.alpha=0.2
 	-- world:insert( balloon )
 
+  birdg=display.newGroup()
+  sceneGroup:insert(birdg)
+  world:insert( birdg )
 
 cloudg=display.newGroup()
 sceneGroup:insert(cloudg)
 world:insert( cloudg )
 
-birdg=display.newGroup()
-sceneGroup:insert(birdg)
-world:insert( birdg )
+
 
 -- corda[1]=display.newImageRect( cordag, "corda.png", 2,4 )
 -- corda[1].x,corda[1].y=balloon.x,balloon.y+25
@@ -473,8 +478,9 @@ local function onCollisionBalloon(self,event)
 	Runtime:removeEventListener("enterFrame", enterFrame)
 	balloon:setSequence("boom")
 	balloon:play()
-  display.remove(finger)
-  display.remove(corda)
+finger:toBack()
+corda:toBack()
+
 
 
 	physics.pause()
@@ -696,7 +702,7 @@ function scene:show( event )
 			fog.y = 0 + display.screenOriginY
 			fog:setFillColor(0.5,0.5,0.5)
 			fog.alpha=0.4
-				background:removeEventListener("touch", shift)
+				finger:removeEventListener("touch", shift)
 			timer.pause(timerNewBird)
 		physics.pause()
 		pauseBtn:toBack()
