@@ -53,7 +53,6 @@ end
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
--- create()
 
 function scene:create( event )
 
@@ -99,7 +98,6 @@ function scene:create( event )
 
                local rankNum = display.newText( sceneGroup, i .. ") ".. scoresTable[i], display.contentCenterX, yPos, native.systemFont, 30 )
                    rankNum:setFillColor( 0 )
-                   -- rankNum.anchorX = 0
 
 
            end
@@ -116,45 +114,30 @@ function scene:create( event )
        end
 
        local backBtn = widget.newButton{
+         textOnly=true,
          label="back",
          labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
          default="button.png",
          over="button-over.png",
-         width=154, height=40,
+         width=200, height=50,
          onRelease = onBackBtnRelease	-- event listener function
        }
        backBtn.x = display.contentCenterX*0.2
-       backBtn.y = display.contentCenterY-display.contentCenterY*1.1
+       backBtn.y = display.contentCenterY-display.contentCenterY
        sceneGroup:insert( backBtn )
 
        local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
-     	balloon.alpha=0.7
-     -- for i=1,20 do
-     	corda=display.newImageRect( sceneGroup, "corda.png", 2,grass.y-grass.height-balloon.y)
-     -- 	physics.addBody( corda[i], "static" )
-     --
-     -- end
-     corda.x,corda.y=balloon.x,balloon.y*1.23
-     corda.alpha=0.7
 
-     -- rope=physics.newJoint( "pivot", balloon, corda[1],0,2,0,2)
-     --
+     	corda=display.newImageRect( sceneGroup, "corda.png", 1,grass.y-grass.height-balloon.y)
+     
+     corda.x,corda.y=balloon.x,balloon.y+balloon.height
+     corda.alpha=0.4
+
      balloon:toFront()
-     -- for i=2,#corda do
-     -- 	corda[i].x,corda[i].y=corda[i-1].x,corda[i-1].y+4
-     -- 	rope=physics.newJoint( "pivot", corda[i-1], corda[i],0,2,0,2)
-     --
-     -- end
-       -- graph=display.newGroup()
-       -- sceneGroup:insert(graph)
-       -- graph:insert(grass)
-       -- graph:insert(balloon)
-       -- graph:insert(grass)
 
 end
 
 
--- show()
 function scene:show( event )
 
     local sceneGroup = self.view
@@ -175,7 +158,6 @@ function scene:show( event )
 end
 
 
--- hide()
 function scene:hide( event )
 
     local sceneGroup = self.view
@@ -192,7 +174,6 @@ function scene:hide( event )
 end
 
 
--- destroy()
 function scene:destroy( event )
 
     local sceneGroup = self.view
