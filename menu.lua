@@ -36,44 +36,43 @@ local function loadSounds()
 	audio.setMaxVolume( 0.2, {channel=2})
 end
 
+
 local function loadScores()
-    local file = io.open( filePath, "r" )
-
-    if file then
-        local contents = file:read( "*a" )
-        io.close( file )
-        scoresTable = json.decode( contents )
-    end
-
-    if ( scoresTable == nil or #scoresTable == 0 ) then
-        scoresTable = { 0, 0, 0}
-    end
+    	local file = io.open( filePath, "r" )
+	if file then
+        	local contents = file:read( "*a" )
+        	io.close( file )
+        	scoresTable = json.decode( contents )
+	end
+	
+	if ( scoresTable == nil or #scoresTable == 0 ) then
+        	scoresTable = { 0, 0, 0}
+    	end
 end
 
 	
 local function loadTutorial()
-
 	local file = io.open( filePath2, "r" )
 
 	if file then
-	    local contents = file:read( "*a" )
-	    io.close( file )
-	    tutorial = json.decode( contents )
+		local contents = file:read( "*a" )
+	    	io.close( file )
+	    	tutorial = json.decode( contents )
 	end
 
 	if ( tutorial == nil or #tutorial == 0) then 
-	    tutorial = {true}
+		tutorial = {true}
 	end
 end
 	
-local function saveTutorial()
 
+local function saveTutorial()
 	table.remove( tutorial )
 	local file = io.open( filePath2, "w" )
 
 	if file then
-	    file:write( json.encode( tutorial ) )
-	    io.close( file )
+		file:write( json.encode( tutorial ) )
+		io.close( file )
 	end
 end
 --------------------------------------------
@@ -155,16 +154,6 @@ function scene:create( event )
 	local titleLogo = display.newImageRect( "logo.png", 250, 60 )
 	titleLogo.x = display.contentCenterX
 	titleLogo.y = display.contentCenterY*0.6
-
-
-	--myGlobalSoundToggle = true
-	--speaker = display.newImageRect("speaker.png", 30, 30)
-	--speaker.x = display.contentCenterX*1.9
-	--speaker.y = display.contentCenterY*1.6
-	--speakerOff = display.newImageRect("speaker-off.png", 30, 30)
-	--speakerOff.x = display.contentCenterX*1.9
-	--speakerOff.y = display.contentCenterY*1.6
-	--speakerOff.isVisible = false
 	
 	grass = display.newImageRect( "ground.png", screenW, screenH)
 	grass.anchorX = 0
@@ -237,17 +226,7 @@ local function offScreen(object)
 	if bounds.xMin > display.actualContentWidth - sox then return true end
 	return false
 end
-
---local function onTap( self, event )
- --   speaker.isVisible = speaker.isVisible
-  --  speakerOff.isVisible = speakerOff.isVisible
-  --  myGlobalSoundToggle = speakerOff.isVisible
- --   return true
---end 
-
---speaker:addEventListener( "tap", onTap )	
-
-
+	
 local function enterFrame(event)
 	for i=1, birdgroup.numChildren do
 		if birdgroup[i].sequence=="flyToRight"    then
@@ -255,7 +234,6 @@ local function enterFrame(event)
 
 		else
 			birdgroup[i]:setLinearVelocity(-200,0)
-
 		end
 		
 		if not birdgroup[i]==nil then
