@@ -109,6 +109,7 @@ end
 local function onBackBtnRelease()
 	audio.play( click )
 	-- go to game.lua scene
+	audio.stop(1)
 	display.remove(fog)
 	display.remove( time )
  	display.remove(restartBtn)
@@ -368,7 +369,7 @@ end
 
 
 local function onOkBtnRelease()
-	audio.play(click )
+	audio.play(click)
 	physics.start()
 	timer.resume( timerNewBird )
 	background:addEventListener("touch", shift)
