@@ -9,8 +9,9 @@ local result
 local pop = audio.loadSound( "pop.wav" )
 local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
-audio.reserveChannels( 1 )
-audio.setMaxVolume( 0.1, {channel=1})
+local birdsMusic = audio.loadSound( "birds.wav" )
+audio.reserveChannels( 2 )
+audio.setMaxVolume( 0.1, {channel=2})
 
 -- include Corona's "physics" library
 local physics = require "physics"
@@ -455,6 +456,7 @@ function scene:show( event )
 		timerNewBird=timer.performWithDelay( math.random(1,2)*1500, newBird )
 		balloon.collision=onCollisionBalloon
 		balloon:addEventListener("collision")
+		audio.play(birdsMusic, {channel=1, loop=-1})
 		
 		if tutorial[1] then
 			fog=display.newImageRect( "tutorial.png", display.actualContentWidth, display.actualContentHeight )
@@ -486,6 +488,7 @@ function scene:show( event )
 			loadTutorial()
 			table.insert( tutorial, 1, false )
 			saveTutorial()
+			audio.play(birdsMusic, {channel=1, loop=-1})
 		end
 	end
 end
@@ -516,6 +519,7 @@ function scene:destroy( event )
 	audio.dispose( click )
 	click=nil
 	pop=nil
+	audio.dispose(birdsMusic)
 end
 
 ---------------------------------------------------------------------------------
