@@ -345,7 +345,7 @@ corda.anchorX=0
 corda.anchorY=0
 corda.alpha=0.3
 
-finger=display.newImageRect( background, "touch.png",40, 40 )
+finger=display.newImageRect( background, "touch.png",60, 60 )
 finger.x,finger.y=balloon.x, corda.y+corda.height
 finger.alpha=0.4
 	-- world:insert( balloon )
