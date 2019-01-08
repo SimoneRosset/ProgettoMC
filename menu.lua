@@ -306,8 +306,10 @@ function scene:destroy( event )
 	tweet=nil
 	audio.dispose(music)
 	display.remove(speaker)
+	display.remove(speakerOff)
 	
 	Runtime:removeEventListener("enterFrame", enterFrame)
+	
 
 	if playBtn then
 		playBtn:removeSelf()	-- widgets must be manually removed
