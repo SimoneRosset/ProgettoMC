@@ -1,7 +1,3 @@
-
-
-
-
 local composer = require( "composer" )
 local scene = composer.newScene()
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
@@ -23,6 +19,15 @@ local filePath2 = system.pathForFile( "tutorial.json", system.DocumentsDirectory
 local playBtn
 local highBtn
 local tutorialBtn
+
+local myGlobalSoundToggle = true
+local speaker = display.newImageRect("speaker.png", 30, 30)
+speaker.x = display.contentCenterX*1.9
+speaker.y = display.contentCenterY*1.6
+local speakerOff = display.newImageRect("speaker-off.png", 30, 30)
+speakerOff.x = display.contentCenterX*1.9
+speakerOff.y = display.contentCenterY*1.6
+speakerOff.isVisible = false
 
 local function loadSounds()
 	click = audio.loadSound( "click.wav" )
@@ -78,15 +83,10 @@ local function onPlayBtnRelease()
 	audio.play(click)
 	-- go to game.lua scene
 	physics.stop()
-
 	timer.cancel(timerNewBird)
-
 	Runtime:removeEventListener("enterFrame", enterFrame)
-
 	composer.removeScene( "menu")
-
 	composer.gotoScene( "game", "fade", 400 )
-
 	return true	-- indicates successful touch
 end
 
@@ -95,14 +95,14 @@ local function onTutorialBtnRelease()
 
 	-- go to game.lua scene
 	physics.stop()
-    loadTutorial()
-    table.insert( tutorial, 1, true )
-    saveTutorial()
-    timer.cancel(timerNewBird)
-    Runtime:removeEventListener("enterFrame", enterFrame)
-    composer.removeScene( "menu")
-    composer.gotoScene( "game", "fade", 400 )
-    return true	-- indicates successful touch
+    	loadTutorial()
+    	table.insert( tutorial, 1, true )
+    	saveTutorial()
+    	timer.cancel(timerNewBird)
+    	Runtime:removeEventListener("enterFrame", enterFrame)
+    	composer.removeScene( "menu")
+    	composer.gotoScene( "game", "fade", 400 )
+    	return true	-- indicates successful touch
 end
 
 local function onHighBtnRelease()
@@ -110,12 +110,29 @@ local function onHighBtnRelease()
 
 	-- go to game.lua scene
 	physics.stop()
-    timer.cancel(timerNewBird)
-    Runtime:removeEventListener("enterFrame", enterFrame)
-    composer.removeScene( "menu")
-    composer.gotoScene( "highScores", "fade", 400 )
-    return true	-- indicates successful touch
+    	timer.cancel(timerNewBird)
+    	Runtime:removeEventListener("enterFrame", enterFrame)
+    	composer.removeScene( "menu")
+    	composer.gotoScene( "highScores", "fade", 400 )
+    	return true	-- indicates successful touch
 end
+
+local function onTap( event )
+	if (speaker.isVisible == true) then
+		speaker.isVisible = false
+		speakerOff.isVisible = true
+
+	elseif (speaker.isVisible == false) then
+		speaker.isVisible = true
+		speakerOff.isVisible = false
+	end
+	
+	myGlobalSoundToggle = speakerOff.isVisible
+    	return true
+end 
+
+speaker:addEventListener( "tap", onTap )	
+speakerOff:addEventListener( "tap", onTap)
 
 function scene:create( event )
 	local sceneGroup = self.view
