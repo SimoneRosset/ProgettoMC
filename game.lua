@@ -312,7 +312,6 @@ loadTutorial()
 	sky.anchorY = 0
 	sky.x = 0 + display.screenOriginX
 	sky.y = 0 + display.screenOriginY
-	sky:setFillColor( 0.9)
 
 
 	-- add physics to the crate
