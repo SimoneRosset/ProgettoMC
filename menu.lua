@@ -29,13 +29,14 @@ speakerOff.x = display.contentCenterX*1.9
 speakerOff.y = display.contentCenterY*1.6
 speakerOff.isVisible = false
 
-local function loadSounds()
-	click = audio.loadSound( "click.wav" )
-	tweet = audio.loadSound( "tweet.wav" )
-	music =audio.loadSound ("PeacefulScene.wav")
-	audio.reserveChannels( 2 )
-	audio.setMaxVolume( 0.2, {channel=2})
-end
+
+local click = audio.loadSound( "click.wav" )
+local tweet = audio.loadSound( "tweet.wav" )
+local music = audio.loadSound ("PeacefulScene.wav")
+audio.reserveChannels( 2 )
+audio.setMaxVolume( 0.2, {channel=2})
+audio.setMaxVolume(0.5, {channel=1})
+
 
 
 local function loadScores()
@@ -83,6 +84,7 @@ local function onPlayBtnRelease()
 	audio.play(click)
 	-- go to game.lua scene
 	physics.stop()
+	audio.stop(1)
 	timer.cancel(timerNewBird)
 	Runtime:removeEventListener("enterFrame", enterFrame)
 	composer.removeScene( "menu")
@@ -119,11 +121,14 @@ end
 
 local function onTap( event )
 	if (speaker.isVisible == true) then
+		audio.setMaxVolume( 0, {channel=2})
+		audio.setMaxVolume(0, {channel=1})
 		speaker.isVisible = false
 		speakerOff.isVisible = true
 
 	elseif (speaker.isVisible == false) then
-		audio.stop()
+		audio.setMaxVolume( 0.2, {channel=2})
+		audio.setMaxVolume(0.5, {channel=1})
 		speaker.isVisible = true
 		speakerOff.isVisible = false
 	end
@@ -216,7 +221,7 @@ function scene:create( event )
 end
 
 local function newBird(event)
-	audio.play(tweet, {channel=1})
+	audio.play(tweet, {channel=2})
 	birds.new(birdgroup, (math.random(1,2)-1)*screenW, math.random(0,display.actualContentHeight/4)).alpha=0.8
 	timerNewBird=timer.performWithDelay( math.random(1,2)*3000, newBird )
 end
@@ -300,6 +305,7 @@ function scene:destroy( event )
 	audio.dispose(tweet)
 	tweet=nil
 	audio.dispose(music)
+	display.remove(speaker)
 	
 	Runtime:removeEventListener("enterFrame", enterFrame)
 
