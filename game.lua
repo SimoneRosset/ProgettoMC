@@ -20,6 +20,15 @@ local clouds = require "cloud"
 local balloon = require "balloon"
 local json = require( "json" )
 
+local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY	
+local actualScore=0	
+local actualRecord = composer.getVariable( "record" )	
+local tutorial={}	
+local filePath2 = system.pathForFile( "tutorial.json", system.DocumentsDirectory )
+
+local scoresTable = {}
+local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
+
 local velocity=220
 local move=velocity/70
 local score = display.newText( 0, display.contentCenterX, 40, native.systemFont, 50 )
@@ -30,15 +39,6 @@ record.alpha=0.6
 local secondi=3
 local time
 local fog
-
-local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY	
-local actualScore=0	
-local actualRecord = composer.getVariable( "record" )	
-local tutorial={}	
-local filePath2 = system.pathForFile( "tutorial.json", system.DocumentsDirectory )
-
-local scoresTable = {}
-local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
 
 local function loadScores()
 	local file = io.open( filePath, "r" )
@@ -380,6 +380,13 @@ local function onOkBtnRelease()
 	pauseBtn:setEnabled(true)
 end
 
+local function newBird(event)
+	audio.play(tweet, {channel=1})
+	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
+	--timerNewBird=timer.performWithDelay( math.random(1,4)*500, newBird )
+	timerNewBird=timer.performWithDelay( math.random(1,4)*(500-10*actualScore), newBird )
+end
+
 local function enterFrame(event)
 	if not balloon.getLinearVelocity then return false end
 	vx,vy=balloon:getLinearVelocity()
@@ -433,12 +440,6 @@ local function enterFrame(event)
 	local hx, hy = balloon:localToContent(0,0)
 	hx, hy = display.contentCenterX - hx, display.contentCenterY*1.3 - hy
 	world.y = world.y + hy
-end
-
-local function newBird(event)
-	audio.play(tweet, {channel=1})
-	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
-	timerNewBird=timer.performWithDelay( math.random(1,4)*500, newBird )
 end
 
 function scene:show( event )
