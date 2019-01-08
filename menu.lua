@@ -32,6 +32,7 @@ speakerOff.isVisible = false
 local function loadSounds()
 	click = audio.loadSound( "click.wav" )
 	tweet = audio.loadSound( "tweet.wav" )
+	music =audio.loadSound ("PeacefulScene.wav")
 	audio.reserveChannels( 2 )
 	audio.setMaxVolume( 0.2, {channel=2})
 end
@@ -266,6 +267,7 @@ function scene:show( event )
 	elseif phase == "did" then
 		timerNewBird=timer.performWithDelay( math.random(1,2)*2000, newBird )
 		Runtime:addEventListener("enterFrame", enterFrame)
+		audio.play(music, {channel=1, loops=-1})
 	end
 end
 
@@ -296,6 +298,7 @@ function scene:destroy( event )
 	click=nil
 	audio.dispose(tweet)
 	tweet=nil
+	audio.dispose(music)
 	
 	Runtime:removeEventListener("enterFrame", enterFrame)
 
