@@ -137,7 +137,7 @@ function scene:create( event )
 	backgroundM.anchorY = 0
 	backgroundM.x = 0 + display.screenOriginX
 	backgroundM.y = 0 + display.screenOriginY
-	backgroundM:setFillColor( .7 )
+	backgroundM:setFillColor( .9 )
 
 	-- create/position logo/title image on upper-half of the screen
 	local titleLogo = display.newImageRect( "logo.png", 250, 60 )
