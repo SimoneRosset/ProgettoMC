@@ -123,6 +123,7 @@ local function onTap( event )
 		speakerOff.isVisible = true
 
 	elseif (speaker.isVisible == false) then
+		audio.stop()
 		speaker.isVisible = true
 		speakerOff.isVisible = false
 	end
