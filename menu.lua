@@ -1,5 +1,7 @@
 
 
+
+
 local composer = require( "composer" )
 local scene = composer.newScene()
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
@@ -10,10 +12,6 @@ local clouds = require "cloud"
 local birds = require "bird"
 
 local balloon = require "balloon"
-local click = audio.loadSound( "click.wav" )
-local tweet = audio.loadSound( "tweet.wav" )
-audio.reserveChannels( 1 )
-audio.setMaxVolume( 0.2, {channel=1})
 
 local json = require( "json" )
 
@@ -21,6 +19,18 @@ local scoresTable = {}
 local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
 local tutorial={}
 local filePath2 = system.pathForFile( "tutorial.json", system.DocumentsDirectory )
+
+local playBtn
+local highBtn
+local tutorialBtn
+
+local function loadSounds()
+	click = audio.loadSound( "click.wav" )
+	tweet = audio.loadSound( "tweet.wav" )
+	audio.reserveChannels( 2 )
+	audio.setMaxVolume( 0.2, {channel=2})
+end
+
 local function loadScores()
     local file = io.open( filePath, "r" )
 
@@ -35,41 +45,37 @@ local function loadScores()
     end
 end
 
-	local function loadTutorial()
+	
+local function loadTutorial()
 
-	    local file = io.open( filePath2, "r" )
+	local file = io.open( filePath2, "r" )
 
-	    if file then
-	        local contents = file:read( "*a" )
-	        io.close( file )
-	        tutorial = json.decode( contents )
-	    end
-
-	    if ( tutorial == nil or #tutorial == 0) then --or #tutorial == 0
-	        tutorial = {true}
-	    end
+	if file then
+	    local contents = file:read( "*a" )
+	    io.close( file )
+	    tutorial = json.decode( contents )
 	end
-	local function saveTutorial()
 
-	        table.remove( tutorial )
-
-	    local file = io.open( filePath2, "w" )
-
-	    if file then
-	        file:write( json.encode( tutorial ) )
-	        io.close( file )
-	    end
+	if ( tutorial == nil or #tutorial == 0) then 
+	    tutorial = {true}
 	end
+end
+	
+local function saveTutorial()
+
+	table.remove( tutorial )
+	local file = io.open( filePath2, "w" )
+
+	if file then
+	    file:write( json.encode( tutorial ) )
+	    io.close( file )
+	end
+end
 --------------------------------------------
-
--- forward declarations and other locals
-local playBtn
-local highBtn
-local tutorialBtn
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
-audio.play(click)
+	audio.play(click)
 	-- go to game.lua scene
 	physics.stop()
 
@@ -83,44 +89,34 @@ audio.play(click)
 
 	return true	-- indicates successful touch
 end
+
 local function onTutorialBtnRelease()
 	audio.play(click)
 
 	-- go to game.lua scene
 	physics.stop()
-
-	loadTutorial()
-
-	table.insert( tutorial, 1, true )
-
-	saveTutorial()
-
-	timer.cancel(timerNewBird)
-
-	Runtime:removeEventListener("enterFrame", enterFrame)
-
-composer.removeScene( "menu")
-
-	composer.gotoScene( "game", "fade", 400 )
-
-	return true	-- indicates successful touch
+    loadTutorial()
+    table.insert( tutorial, 1, true )
+    saveTutorial()
+    timer.cancel(timerNewBird)
+    Runtime:removeEventListener("enterFrame", enterFrame)
+    composer.removeScene( "menu")
+    composer.gotoScene( "game", "fade", 400 )
+    return true	-- indicates successful touch
 end
+
 local function onHighBtnRelease()
 	audio.play(click)
 
 	-- go to game.lua scene
 	physics.stop()
-
-	timer.cancel(timerNewBird)
-
-	Runtime:removeEventListener("enterFrame", enterFrame)
-
-	composer.removeScene( "menu")
-
-	composer.gotoScene( "highScores", "fade", 400 )
-
-	return true	-- indicates successful touch
+    timer.cancel(timerNewBird)
+    Runtime:removeEventListener("enterFrame", enterFrame)
+    composer.removeScene( "menu")
+    composer.gotoScene( "highScores", "fade", 400 )
+    return true	-- indicates successful touch
 end
+
 function scene:create( event )
 	local sceneGroup = self.view
 	loadScores()
@@ -129,7 +125,6 @@ function scene:create( event )
 
 
 	-- Called when the scene's view does not exist.
-
 
 	-- display a background image
 	local backgroundM = display.newImageRect( "background.png", display.actualContentWidth, display.actualContentHeight )
@@ -145,14 +140,21 @@ function scene:create( event )
 	titleLogo.y = display.contentCenterY*0.6
 
 
-
-
+	--myGlobalSoundToggle = true
+	--speaker = display.newImageRect("speaker.png", 30, 30)
+	--speaker.x = display.contentCenterX*1.9
+	--speaker.y = display.contentCenterY*1.6
+	--speakerOff = display.newImageRect("speaker-off.png", 30, 30)
+	--speakerOff.x = display.contentCenterX*1.9
+	--speakerOff.y = display.contentCenterY*1.6
+	--speakerOff.isVisible = false
+	
 	grass = display.newImageRect( "ground.png", screenW, screenH)
 	grass.anchorX = 0
 	grass.anchorY = 1
 	--  draw the grass at the very bottom of the screen
 	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.8 + display.screenOriginY
-  grass.alpha=0.7
+  	grass.alpha=0.7
 	
 
 	-- create a widget button (which will loads level1.lua on release)
@@ -201,17 +203,16 @@ function scene:create( event )
 	sceneGroup:insert( playBtn )
 	sceneGroup:insert( highBtn )
 	sceneGroup:insert( tutorialBtn )
-
 	birdgroup=display.newGroup()
-
-		sceneGroup:insert( birdgroup )
+	sceneGroup:insert( birdgroup )
 end
+
 local function newBird(event)
-audio.play(tweet, {channel=1})
+	audio.play(tweet, {channel=1})
 	birds.new(birdgroup, (math.random(1,2)-1)*screenW, math.random(0,display.actualContentHeight/4)).alpha=0.8
 	timerNewBird=timer.performWithDelay( math.random(1,2)*3000, newBird )
-
 end
+
 local function offScreen(object)
 	local bounds = object.contentBounds
 	local sox = display.screenOriginX
@@ -219,32 +220,37 @@ local function offScreen(object)
 	if bounds.xMin > display.actualContentWidth - sox then return true end
 	return false
 end
+
+--local function onTap( self, event )
+ --   speaker.isVisible = speaker.isVisible
+  --  speakerOff.isVisible = speakerOff.isVisible
+  --  myGlobalSoundToggle = speakerOff.isVisible
+ --   return true
+--end 
+
+--speaker:addEventListener( "tap", onTap )	
+
+
 local function enterFrame(event)
-			for i=1, birdgroup.numChildren do
-				if birdgroup[i].sequence=="flyToRight"    then
-					-- birdg[i]:setSequence( "flyToRight" )
-					birdgroup[i]:setLinearVelocity(200,0)
+	for i=1, birdgroup.numChildren do
+		if birdgroup[i].sequence=="flyToRight"    then
+			birdgroup[i]:setLinearVelocity(200,0)
 
-			else
-				-- birdg[i]:setSequence( "flyToLeft" )
-				birdgroup[i]:setLinearVelocity(-200,0)
+		else
+			birdgroup[i]:setLinearVelocity(-200,0)
 
-			end
-			if not birdgroup[i]==nil then
-
+		end
+		
+		if not birdgroup[i]==nil then
 			if offScreen(birdgroup[i])==true then
 				display.remove( birdgroup[i] )
 				birdgroup:remove(birdg[i])
-
-	 end
-end
+			end
 		end
-
-			-- INSERT code here to make the scene come alive
-			-- e.g. start timers, begin animation, play audio, etc.
-
-
+	end
 end
+
+
 function scene:show( event )
 	local sceneGroup = self.view
 	local phase = event.phase
@@ -254,33 +260,20 @@ function scene:show( event )
 
 		for _=1,3 do
 			clouds.new(sceneGroup, math.random(display.actualContentWidth), math.random(0, display.actualContentHeight/4.5))
-
 		end
 
 	local balloon=balloon.new(sceneGroup, display.contentCenterX,  display.contentCenterY*1.3)
 	corda=display.newImageRect( sceneGroup, "corda.png", 1,grass.y-grass.height-balloon.y)
-
-corda.x,corda.y=balloon.x,balloon.y+balloon.height
-corda.alpha=0.4
-
-
-balloon:toFront()
-
-
-
-
-
-		
+	corda.x,corda.y=balloon.x,balloon.y+balloon.height
+	corda.alpha=0.4
+	balloon:toFront()
+	
 	elseif phase == "did" then
-		
-
-
 		timerNewBird=timer.performWithDelay( math.random(1,2)*2000, newBird )
-
 		Runtime:addEventListener("enterFrame", enterFrame)
+	end
+end
 
-end
-end
 
 function scene:hide( event )
 	local sceneGroup = self.view
@@ -288,19 +281,16 @@ function scene:hide( event )
 
 	if event.phase == "will" then
 		-- Called when the scene is on screen and is about to move off screen
-		--
-
 		timer.cancel(timerNewBird)
 		physics.stop()
 
-		
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
 		Runtime:removeEventListener("enterFrame", enterFrame)
-
-	composer.removeScene("menu")
+		composer.removeScene("menu")
 	end
 end
+
 
 function scene:destroy( event )
 	local sceneGroup = self.view
