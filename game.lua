@@ -166,6 +166,7 @@ local function shift(event)
 
 	if event.phase == "began" then
 				held=true;
+		finger.alpha = 0.8
 
 
 		elseif event.phase == "moved" and held then
@@ -200,9 +201,10 @@ rotazione= math.deg(rotazioneRad+math.pi/2)
         if corda.height<balloon.height then
         corda.height=balloon.height
         end
-        if not (finger==nil or corda==nil) then
+        --if not (finger==nil or corda==nil) then
         finger.x,finger.y=corda.x, corda.y+corda.height
-      end
+	finger.aplha=0.2
+ 
 		else
        held=false
 		end
@@ -347,7 +349,7 @@ corda.alpha=0.3
 
 finger=display.newImageRect( background, "touch.png",60, 60 )
 finger.x,finger.y=balloon.x, corda.y+corda.height
-finger.alpha=0.4
+finger.alpha=0.2
 	-- world:insert( balloon )
 
   birdg=display.newGroup()
