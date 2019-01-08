@@ -419,6 +419,15 @@ corda:toBack()
 	 end
 
 pauseBtn:toBack()
+	
+loadScores()
+-- Insert the saved score from the last game into the table, then reset it
+table.insert( scoresTable, composer.getVariable( "finalScore" ) )
+composer.setVariable( "finalScore", 0 )
+table.sort( scoresTable, compare )
+-- Save the scores
+saveScores()
+composer.setVariable( "record", scoresTable[1] )
 
 
 
