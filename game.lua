@@ -173,6 +173,51 @@ composer.setVariable( "record", scoresTable[1] )
 
 	return true	-- indicates successful touch
 end
+-- local function shift(event)
+--
+-- 	if event.phase == "began" then
+-- 				held=true;
+-- finger.alpha=0.8
+--
+-- 		elseif event.phase == "moved" and held then
+--
+-- 			if balloon.x<event.x then
+-- 					balloon.x=balloon.x+move
+-- 				end
+-- 					if balloon.x>event.x then
+-- 							balloon.x=balloon.x-move
+--
+-- 						end
+--             corda.x=balloon.x
+--             finger.x=event.x
+--             finger.y=event.y
+-- corda.height=math.sqrt((event.y-display.contentCenterY*1.3)^2+(event.x-balloon.x)^2)
+--
+--               rotazioneRad=-math.atan2((event.y-display.contentCenterY*1.3),(event.x-balloon.x))
+-- rotazione= math.deg(rotazioneRad+math.pi/2)
+--
+--                   balloon.rotation = -rotazione--accompagna lo spostamento con una inclinazione
+--                   corda.rotation= -rotazione
+--
+--
+--
+--
+--
+-- 		elseif event.phase == "ended" or event.phase == "cancelled" then
+-- 				held=false
+--
+-- 				balloon.rotation = 0
+--         corda.rotation=0
+--
+--         if corda.height<balloon.height then
+--         corda.height=balloon.height
+--         end
+--         finger.x,finger.y=corda.x, corda.y+corda.height
+--       finger.alpha=0.2
+-- 		else
+--        held=false
+-- 		end
+-- end
 local function shift(event)
 
 	if event.phase == "began" then
