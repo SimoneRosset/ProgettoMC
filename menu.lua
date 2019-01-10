@@ -30,15 +30,15 @@ audio.setMaxVolume( 0.05, {channel=3})
 audio.setMaxVolume(0.5, {channel=1})
 
 local speaker = display.newImageRect("speaker.png", 30, 30)
-speaker.x = display.contentCenterX*0.2
-speaker.y = display.contentCenterY-display.contentCenterYspeaker.x = display.contentCenterX*1.9
+speaker.x = display.contentCenterX*1.8
+speaker.y = display.contentCenterY-display.contentCenterY
 if (sound==false) then
 	speaker.isVisible = false
 else
 	speaker.alpha=0.5
 end
 local speakerOff = display.newImageRect("speaker-off.png", 30, 30)
-speakerOff.x = display.contentCenterX*0.2
+speakerOff.x = display.contentCenterX*1.8
 speakerOff.y = display.contentCenterY-display.contentCenterY
 if (sound==false) then
 	speakerOff.alpha = 0.5
