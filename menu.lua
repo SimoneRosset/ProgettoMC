@@ -20,15 +20,6 @@ local playBtn
 local highBtn
 local tutorialBtn
 
-local myGlobalSoundToggle = true
-local speaker = display.newImageRect("speaker.png", 30, 30)
-speaker.x = display.contentCenterX*1.9
-speaker.y = display.contentCenterY*1.6
-local speakerOff = display.newImageRect("speaker-off.png", 30, 30)
-speakerOff.x = display.contentCenterX*1.9
-speakerOff.y = display.contentCenterY*1.6
-speakerOff.isVisible = false
-
 
 local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
@@ -36,6 +27,23 @@ local music = audio.loadSound ("PeacefulScene.wav")
 audio.reserveChannels( 2 )
 audio.setMaxVolume( 0.2, {channel=2})
 audio.setMaxVolume(0.5, {channel=1})
+
+local speaker = display.newImageRect("speaker.png", 30, 30)
+speaker.x = display.contentCenterX*1.9
+speaker.y = display.contentCenterY*1.6
+if (sound==false) then
+	speaker.isVisible = false
+else
+	speaker.isVisible = true
+end
+local speakerOff = display.newImageRect("speaker-off.png", 30, 30)
+speakerOff.x = display.contentCenterX*1.9
+speakerOff.y = display.contentCenterY*1.6
+if (sound==false) then
+	speakerOff.isVisible = true
+else
+	speakerOff.isVisible = false
+end
 
 
 
@@ -81,7 +89,9 @@ end
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
-	audio.play(click)
+	if (speaker.isVisible == true) then
+		audio.play(click, {channel = 2})
+	end
 	-- go to game.lua scene
 	physics.stop()
 	audio.stop(1)
@@ -93,7 +103,9 @@ local function onPlayBtnRelease()
 end
 
 local function onTutorialBtnRelease()
-	audio.play(click)
+	if (speaker.isVisible == true) then
+		audio.play(click, {channel = 2})
+	end
 
 	-- go to game.lua scene
 	physics.stop()
@@ -108,7 +120,7 @@ local function onTutorialBtnRelease()
 end
 
 local function onHighBtnRelease()
-	audio.play(click)
+	audio.play(click, {channel = 2})
 
 	-- go to game.lua scene
 	physics.stop()
@@ -120,21 +132,25 @@ local function onHighBtnRelease()
 end
 
 local function onTap( event )
-	if (speaker.isVisible == true) then
-		audio.setMaxVolume( 0, {channel=2})
-		audio.setMaxVolume(0, {channel=1})
+	if (sound == true) then
+		audio.setVolume(0, {channel=1})
+		audio.setVolume(0, {channel=2})
+		audio.setVolume(0, {channel=3})
+		sound = false
 		speaker.isVisible = false
 		speakerOff.isVisible = true
 
-	elseif (speaker.isVisible == false) then
-		audio.setMaxVolume( 0.2, {channel=2})
-		audio.setMaxVolume(0.5, {channel=1})
+	elseif (sound == false) then
+		audio.setVolume(0.5, {channel=1})
+		audio.setVolume(0.05, {channel=2})
+		audio.setVolume(0.1, {channel=3})
+		sound = true
 		speaker.isVisible = true
 		speakerOff.isVisible = false
 	end
 	
-	myGlobalSoundToggle = speakerOff.isVisible
-    	return true
+	
+    return true
 end 
 
 speaker:addEventListener( "tap", onTap )	
@@ -305,6 +321,7 @@ function scene:destroy( event )
 	audio.dispose(tweet)
 	tweet=nil
 	audio.dispose(music)
+	music = nil
 	display.remove(speaker)
 	display.remove(speakerOff)
 	
