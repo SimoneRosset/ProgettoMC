@@ -36,12 +36,14 @@ if (sound==false) then
 	speaker.isVisible = false
 else
 	speaker.isVisible = true
+	speaker.alpha=0.5
 end
 local speakerOff = display.newImageRect("speaker-off.png", 30, 30)
 speakerOff.x = display.contentCenterX*0.2
 speakerOff.y = display.contentCenterY-display.contentCenterY
 if (sound==false) then
 	speakerOff.isVisible = true
+	speakerOff.alpha = 0.5
 else
 	speakerOff.isVisible = false
 end
