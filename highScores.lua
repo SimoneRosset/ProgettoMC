@@ -6,7 +6,8 @@ local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actua
 local clouds = require "cloud"
 local balloon = require "balloon"
 local click = audio.loadSound( "click.wav" )
-
+audio.reserveChannels(1)
+audio.setMaxVolume( 0.1, {channel=1})
 
 -- Initialize variables
 local json = require( "json" )
@@ -89,7 +90,7 @@ function scene:create( event )
     
     local function onBackBtnRelease()
         -- go to game.lua scene
-        audio.play(click)
+        audio.play(click, {channel=1})
         composer.removeScene( "highScores")
        	composer.gotoScene( "menu", "fade", 400 )
         return true	-- indicates successful touch
