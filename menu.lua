@@ -35,14 +35,12 @@ speaker.y = display.contentCenterY-display.contentCenterYspeaker.x = display.con
 if (sound==false) then
 	speaker.isVisible = false
 else
-	speaker.isVisible = true
 	speaker.alpha=0.5
 end
 local speakerOff = display.newImageRect("speaker-off.png", 30, 30)
 speakerOff.x = display.contentCenterX*0.2
 speakerOff.y = display.contentCenterY-display.contentCenterY
 if (sound==false) then
-	speakerOff.isVisible = true
 	speakerOff.alpha = 0.5
 else
 	speakerOff.isVisible = false
@@ -142,6 +140,7 @@ local function onTap( event )
 		sound = false
 		speaker.isVisible = false
 		speakerOff.isVisible = true
+		speakerOff.alpha = 0.5
 
 	elseif (sound == false) then
 		audio.setVolume(0.5, {channel=1})
@@ -149,6 +148,7 @@ local function onTap( event )
 		audio.setVolume(0.1, {channel=3})
 		sound = true
 		speaker.isVisible = true
+		speaker.alpha = 0.5
 		speakerOff.isVisible = false
 	end
 	
