@@ -10,8 +10,11 @@ local pop = audio.loadSound( "pop.wav" )
 local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
 local birdsMusic = audio.loadSound( "birds.wav" )
-audio.reserveChannels( 2 )
+audio.reserveChannels( 4 )
+audio.setMaxVolume( 0.1, {channel=4})
+audio.setMaxVolume( 0.05, {channel=3})
 audio.setMaxVolume( 0.1, {channel=2})
+audio.setMaxVolume( 0.7, {channel=1})
 
 -- include Corona's "physics" library
 local physics = require "physics"
@@ -107,7 +110,7 @@ local function bestScore()
 end
 
 local function onBackBtnRelease()
-	audio.play( click )
+	audio.play( click, {channel = 2} )
 	-- go to game.lua scene
 	audio.stop(1)
 	display.remove(fog)
@@ -122,7 +125,7 @@ local function onBackBtnRelease()
 end
 
 local function onRestartBtnRelease()
-	audio.play( click )
+	audio.play(click, {channel = 2})
 	-- go to game.lua scene
   	display.remove(restartBtn)
 	display.remove(fog)
@@ -206,7 +209,7 @@ local function clock(event)
 end
 
 local function onPauseBtnRelease()
-	audio.play( click )
+	audio.play(click, {channel = 2})
 	if pause and not press then
 		pauseBtn:setLabel("")
 		time.text= secondi
@@ -313,7 +316,7 @@ function scene:create( event )
 end
 
 local function onCollisionBalloon(self,event)
-	audio.play(pop)
+	audio.play(pop, {channel = 4})
   	finger:removeEventListener("touch", shift)
 	Runtime:removeEventListener("enterFrame", enterFrame)
 	balloon:setSequence("boom")
@@ -369,7 +372,7 @@ end
 
 
 local function onOkBtnRelease()
-	audio.play(click)
+	audio.play(click, {channel = 2})
 	physics.start()
 	timer.resume( timerNewBird )
 	background:addEventListener("touch", shift)
@@ -382,9 +385,8 @@ local function onOkBtnRelease()
 end
 
 local function newBird(event)
-	audio.play(tweet, {channel=1})
+	audio.play(tweet, {channel=3})
 	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
-	--timerNewBird=timer.performWithDelay( math.random(1,4)*500, newBird )
 	timerNewBird=timer.performWithDelay( math.random(1,4)*(500-10*actualScore), newBird )
 end
 
