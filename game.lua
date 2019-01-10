@@ -36,7 +36,7 @@ local velocity=220
 local move=velocity/70
 local score = display.newText( 0, display.contentCenterX, 40, native.systemFont, 50 )
 score:setFillColor( 0, 0, 0 )
-local record = display.newText( "record: "..actualRecord, display.contentCenterX, 70, native.systemFont, 15 )
+local record = display.newText( "Record: "..actualRecord, display.contentCenterX, 70, native.systemFont, 15 )
 record:setFillColor( 0, 0, 0 )
 record.alpha=0.6
 local secondi=3
@@ -106,7 +106,7 @@ local function saveTutorial()
 end
 
 local function bestScore()
-	record.text="record: "..actualScore
+	record.text="Record: "..actualScore
 end
 
 local function onBackBtnRelease()
@@ -186,7 +186,7 @@ local function shift(event)
 end
 
 local function ready(event)
-	pauseBtn:setLabel("pause")
+	pauseBtn:setLabel("Pause")
 	score:setFillColor( 0, 0, 0 )
 	display.remove( fog )
 	timer.cancel(watch)
@@ -217,8 +217,8 @@ local function onPauseBtnRelease()
 		timerPause=timer.performWithDelay( 3000, ready, secondi )
 		pause, press=false, true
 	elseif not press then
-		pauseBtn:setLabel("start")
-		time = display.newText( "pause", display.contentCenterX, display.contentCenterY, native.systemFont, 100 )
+		pauseBtn:setLabel("Start")
+		time = display.newText( "Pause", display.contentCenterX, display.contentCenterY, native.systemFont, 100 )
 	 	time:setFillColor( 0, 0, 0 )
 	 	score:setFillColor( 0.3, 0.3, 0.3 )
 		fog=display.newImageRect( "background.png", display.actualContentWidth, display.actualContentHeight )
@@ -243,7 +243,7 @@ function scene:create( event )
 	loadTutorial()
 	backBtn = widget.newButton{
 		textOnly=true,
-		label="back",
+		label="Back",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
@@ -255,7 +255,7 @@ function scene:create( event )
 	sceneGroup:insert( backBtn )
 	pauseBtn = widget.newButton{
 		textOnly=true,
-		label="pause",
+		label="Pause",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
@@ -334,7 +334,7 @@ local function onCollisionBalloon(self,event)
 	fog.alpha=0.5
 	restartBtn = widget.newButton{
 		textOnly=true,
-		label="restart",
+		label="Restart",
 		labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 		default="button.png",
 		over="button-over.png",
@@ -346,14 +346,14 @@ local function onCollisionBalloon(self,event)
 	restartBtn.y = display.contentCenterY*1.3
 	display.remove(score)
   	display.remove(record)
-	time = display.newText( "score: " .. actualScore, display.contentCenterX, display.contentCenterY, native.systemFont, 50 )
+	time = display.newText( "Score: " .. actualScore, display.contentCenterX, display.contentCenterY, native.systemFont, 50 )
 	time:setFillColor( 0, 0, 0 )
 	composer.setVariable( "finalScore", actualScore )
-    	result = display.newText( "record: " .. actualRecord, display.contentCenterX, display.contentCenterY*1.15, native.systemFont, 15 )
+    	result = display.newText( "Record: " .. actualRecord, display.contentCenterX, display.contentCenterY*1.15, native.systemFont, 15 )
    	result:setFillColor( 0, 0, 0 )
 	
 	if actualScore>actualRecord then
-		result.text="newRecord: "..actualScore.."!"
+		result.text="New Record: "..actualScore.."!"
 		composer.setVariable( "record", actualScore )
 	end
 	
@@ -479,7 +479,7 @@ function scene:show( event )
 			backBtn:setEnabled(false)
 			okBtn= widget.newButton{
 			textOnly=true,
-			label="ok!",
+			label="Ok!",
 			labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
 			default="button.png",
 			over="button-over.png",
