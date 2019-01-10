@@ -24,8 +24,9 @@ local tutorialBtn
 local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
 local music = audio.loadSound ("PeacefulScene.wav")
-audio.reserveChannels( 2 )
-audio.setMaxVolume( 0.2, {channel=2})
+audio.reserveChannels( 3 )
+audio.setMaxVolume( 0.1, {channel=2})
+audio.setMaxVolume( 0.05, {channel=3})
 audio.setMaxVolume(0.5, {channel=1})
 
 local speaker = display.newImageRect("speaker.png", 30, 30)
@@ -237,7 +238,9 @@ function scene:create( event )
 end
 
 local function newBird(event)
-	audio.play(tweet, {channel=2})
+	if (sound == true) then
+		audio.play(tweet, {channel=3})
+	end
 	birds.new(birdgroup, (math.random(1,2)-1)*screenW, math.random(0,display.actualContentHeight/4)).alpha=0.8
 	timerNewBird=timer.performWithDelay( math.random(1,2)*3000, newBird )
 end
