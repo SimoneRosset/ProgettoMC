@@ -21,7 +21,7 @@ local highBtn
 local tutorialBtn
 
 
-local click = audio.loadSound( "click.wav" )
+local click = audio.loadSound( "pop.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
 local music = audio.loadSound ("PeacefulScene.wav")
 audio.reserveChannels( 3 )
