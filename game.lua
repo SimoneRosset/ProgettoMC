@@ -240,6 +240,7 @@ end
 function scene:create( event )
 	-- Called when the scene's view does not exist.
 	local sceneGroup = self.view
+	audio.play(birdsMusic, {channel=1, loop=-1})
 	loadScores()
 	loadTutorial()
 
@@ -248,10 +249,14 @@ function scene:create( event )
   	audio.setVolume(0.5, {channel=1})
   	audio.setVolume(1, {channel=2})
   	audio.setVolume(1, {channel=3})
+		audio.setVolume(1, {channel=4})
+
   else
   	audio.setVolume(0, {channel=1})
   	audio.setVolume(0, {channel=2})
   	audio.setVolume(0, {channel=3})
+		audio.setVolume(0, {channel=4})
+
   end
 
 
@@ -400,7 +405,7 @@ end
 
 
 local function newBird(event)
-	audio.play(tweet, {channel=3})
+	audio.play(tweet, {channel = 4})
 	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
 	timerNewBird=timer.performWithDelay( math.random(1,4)*(500-10*actualScore), newBird )
 end
@@ -460,11 +465,6 @@ local function enterFrame(event)
 	hx, hy = display.contentCenterX - hx, display.contentCenterY*1.3 - hy
 	world.y = world.y + hy
 end
-local function newBird(event)
-	audio.play(tweet, {channel=1})
-	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
-	timerNewBird=timer.performWithDelay( math.random(1,4)*500, newBird )
-end
 
 function scene:show( event )
 	local phase = event.phase
@@ -481,7 +481,6 @@ function scene:show( event )
 		timerNewBird=timer.performWithDelay( math.random(1,2)*1500, newBird )
 		balloon.collision=onCollisionBalloon
 		balloon:addEventListener("collision")
-		audio.play(birdsMusic, {channel=1, loop=-1})
 
 		if tutorial[1] then
 			fog=display.newImageRect( "tutorial.png", display.actualContentWidth, display.actualContentHeight )
@@ -513,7 +512,6 @@ function scene:show( event )
 			loadTutorial()
 			table.insert( tutorial, 1, false )
 			saveTutorial()
-			audio.play(birdsMusic, {channel=1, loop=-1})
 		end
 	end
 end
@@ -536,7 +534,6 @@ function scene:destroy( event )
 		pauseBtn:removeSelf()	-- widgets must be manually removed
 		pauseBtn = nil
 	end
-	-- Called prior to the removal of scene's "view" (sceneGroup)
 
 	audio.dispose(tweet)
 	tweet=nil
@@ -545,6 +542,7 @@ function scene:destroy( event )
 	click=nil
 	pop=nil
 	audio.dispose(birdsMusic)
+	birdsMusic=nil
 end
 
 ---------------------------------------------------------------------------------
