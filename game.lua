@@ -246,8 +246,8 @@ function scene:create( event )
   if composer.getVariable( "sound" ) then
   	audio.play(music, {channel=1, loops=-1})
   	audio.setVolume(0.5, {channel=1})
-  	audio.setVolume(0.1, {channel=2})
-  	audio.setVolume(0.1, {channel=3})
+  	audio.setVolume(1, {channel=2})
+  	audio.setVolume(1, {channel=3})
   else
   	audio.setVolume(0, {channel=1})
   	audio.setVolume(0, {channel=2})

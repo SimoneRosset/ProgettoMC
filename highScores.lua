@@ -53,8 +53,8 @@ function scene:create( event )
     local sceneGroup = self.view
 
     if composer.getVariable( "sound" ) then
-    	audio.setVolume(0.05, {channel=1})
-    	audio.setVolume(0.1, {channel=2})
+    	audio.setVolume(0.5, {channel=1})
+    	audio.setVolume(1, {channel=2})
     else
     	audio.setVolume(0, {channel=1})
     	audio.setVolume(0, {channel=2})
