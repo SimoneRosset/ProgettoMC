@@ -11,10 +11,6 @@ local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
 local birdsMusic = audio.loadSound( "birds.wav" )
 
-audio.setMaxVolume( 0.05, {channel=3}) --birds and balloon channel
-audio.setMaxVolume( 0.1, {channel=2})
-audio.setMaxVolume( 0.7, {channel=1})
-
 -- include Corona's "physics" library
 local physics = require "physics"
 local birds = require "bird"

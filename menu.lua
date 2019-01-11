@@ -27,10 +27,8 @@ local soundBtn
 
 local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
-local music = audio.loadSound ("PeacefulScene.wav")
-audio.setMaxVolume(0.5, {channel=1}) -- background music channel
-audio.setMaxVolume( 0.1, {channel=2}) -- botton channel
-audio.setMaxVolume( 0.05, {channel=3}) -- birds channel
+local music = audio.loadSound ("jingle.mp3")
+
 
 
 -- local speaker = display.newImageRect("speaker.png", 30, 30)
@@ -302,7 +300,7 @@ local function enterFrame(event)
 
 	if composer.getVariable( "sound" ) then
 		audio.play(music, {channel=1, loops=-1})
-		audio.setVolume(0.5, {channel=1})
+		audio.setVolume(0.05, {channel=1})
 		audio.setVolume(0.1, {channel=2})
 		audio.setVolume(0.1, {channel=3})
 	else

@@ -6,8 +6,7 @@ local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actua
 local clouds = require "cloud"
 local balloon = require "balloon"
 local click = audio.loadSound( "click.wav" )
-audio.setMaxVolume( 0.5, {channel=1})
-audio.setMaxVolume( 0.1, {channel=2})
+
 
 
 if composer.getVariable( "sound" )==nil then
@@ -54,7 +53,7 @@ function scene:create( event )
     local sceneGroup = self.view
 
     if composer.getVariable( "sound" ) then
-    	audio.setVolume(0.5, {channel=1})
+    	audio.setVolume(0.05, {channel=1})
     	audio.setVolume(0.1, {channel=2})
     else
     	audio.setVolume(0, {channel=1})
