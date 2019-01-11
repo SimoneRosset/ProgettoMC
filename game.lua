@@ -10,9 +10,8 @@ local pop = audio.loadSound( "pop.wav" )
 local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
 local birdsMusic = audio.loadSound( "birds.wav" )
-audio.reserveChannels( 4 )
-audio.setMaxVolume( 0.1, {channel=4})
-audio.setMaxVolume( 0.05, {channel=3})
+
+audio.setMaxVolume( 0.05, {channel=3}) --birds and balloon channel
 audio.setMaxVolume( 0.1, {channel=2})
 audio.setMaxVolume( 0.7, {channel=1})
 
@@ -23,14 +22,18 @@ local clouds = require "cloud"
 local balloon = require "balloon"
 local json = require( "json" )
 
-local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY	
-local actualScore=0	
-local actualRecord = composer.getVariable( "record" )	
-local tutorial={}	
+local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
+local actualScore=0
+local actualRecord = composer.getVariable( "record" )
+local tutorial={}
 local filePath2 = system.pathForFile( "tutorial.json", system.DocumentsDirectory )
 
 local scoresTable = {}
 local filePath = system.pathForFile( "scores.json", system.DocumentsDirectory )
+
+if composer.getVariable( "sound" )==nil then
+	composer.setVariable( "sound",true )
+end
 
 local velocity=220
 local move=velocity/70
@@ -45,7 +48,7 @@ local fog
 
 local function loadScores()
 	local file = io.open( filePath, "r" )
-	
+
 	if file then
 		local contents = file:read( "*a" )
         	io.close( file )
@@ -98,7 +101,7 @@ end
 
 local function saveTutorial()
 	table.remove( tutorial )
-	local file = io.open( filePath2, "w" )	
+	local file = io.open( filePath2, "w" )
 	if file then
         	file:write( json.encode( tutorial ) )
         	io.close( file )
@@ -127,22 +130,24 @@ end
 local function onRestartBtnRelease()
 	audio.play(click, {channel = 2})
 	-- go to game.lua scene
+	audio.stop(1)
+
   	display.remove(restartBtn)
 	display.remove(fog)
  	display.remove( time )
  	display.remove( result )
 	physics.stop()
 	loadScores()
-	
+
 	-- Insert the saved score from the last game into the table, then reset it
 	table.insert( scoresTable, composer.getVariable( "finalScore" ) )
 	composer.setVariable( "finalScore", 0 )
 	table.sort( scoresTable, compare )
-	
+
 	-- Save the scores
 	saveScores()
 	composer.setVariable( "record", scoresTable[1] )
-	
+
 	composer.removeScene( "game")
 	composer.gotoScene( "game", "fade", 400 )
 	return true	-- indicates successful touch
@@ -203,7 +208,7 @@ local function clock(event)
 	 if secondi>0 then
 		secondi=secondi-1
 		time.text= secondi
-	else 	
+	else
 		timer.cancel(timerPause)
 	end
 end
@@ -241,6 +246,19 @@ function scene:create( event )
 	local sceneGroup = self.view
 	loadScores()
 	loadTutorial()
+
+  if composer.getVariable( "sound" ) then
+  	audio.play(music, {channel=1, loops=-1})
+  	audio.setVolume(0.5, {channel=1})
+  	audio.setVolume(0.1, {channel=2})
+  	audio.setVolume(0.1, {channel=3})
+  else
+  	audio.setVolume(0, {channel=1})
+  	audio.setVolume(0, {channel=2})
+  	audio.setVolume(0, {channel=3})
+  end
+
+
 	backBtn = widget.newButton{
 		textOnly=true,
 		label="Back",
@@ -300,7 +318,7 @@ function scene:create( event )
 	finger=display.newImageRect( background, "touch.png",60, 60 )
 	finger.x,finger.y=balloon.x, corda.y+corda.height
 	finger.alpha=0.2
-	
+
 	-- world:insert( balloon )
 	birdg=display.newGroup()
   	sceneGroup:insert(birdg)
@@ -309,14 +327,14 @@ function scene:create( event )
 	cloudg=display.newGroup()
 	sceneGroup:insert(cloudg)
 	world:insert( cloudg )
-	
+
 	for _= 1, 10 do
 		clouds.new(cloudg, math.random(display.actualContentWidth), math.random(0, display.actualContentHeight)*math.random(-3,-1))
 	end
 end
 
 local function onCollisionBalloon(self,event)
-	audio.play(pop, {channel = 4})
+	audio.play(pop, {channel = 3})
   	finger:removeEventListener("touch", shift)
 	Runtime:removeEventListener("enterFrame", enterFrame)
 	balloon:setSequence("boom")
@@ -351,12 +369,12 @@ local function onCollisionBalloon(self,event)
 	composer.setVariable( "finalScore", actualScore )
     	result = display.newText( "Record: " .. actualRecord, display.contentCenterX, display.contentCenterY*1.15, native.systemFont, 15 )
    	result:setFillColor( 0, 0, 0 )
-	
+
 	if actualScore>actualRecord then
 		result.text="New Record: "..actualScore.."!"
 		composer.setVariable( "record", actualScore )
 	end
-	
+
 	pauseBtn:toBack()
 	loadScores()
 
@@ -364,7 +382,7 @@ local function onCollisionBalloon(self,event)
 	table.insert( scoresTable, composer.getVariable( "finalScore" ) )
 	composer.setVariable( "finalScore", 0 )
 	table.sort( scoresTable, compare )
-	
+
 	-- Save the scores
 	saveScores()
 	composer.setVariable( "record", scoresTable[1] )
@@ -383,20 +401,6 @@ local function onOkBtnRelease()
 	pauseBtn:toFront()
 	pauseBtn:setEnabled(true)
 end
-local function onOkBtnRelease()
-	audio.play(click )
-
-	physics.start()
-
-
-	timer.resume( timerNewBird )
-	background:addEventListener("touch", shift)
-display.remove(fog)
-background:remove( okBtn )
-
-backBtn:toFront()
-backBtn:setEnabled(true)
-
 
 
 local function newBird(event)
@@ -405,20 +409,6 @@ local function newBird(event)
 	timerNewBird=timer.performWithDelay( math.random(1,4)*(500-10*actualScore), newBird )
 end
 
-pauseBtn:toFront()
-pauseBtn:setEnabled(true)
-
-
-
--- local function offScreen(object)
--- 	local bounds = object.contentBounds
--- 	local sox, soy = display.screenOriginX, display.screenOriginY
--- 	if bounds.xMax < sox then return true end
--- 	if bounds.yMax < soy then return true end
--- 	if bounds.xMin > display.actualContentWidth - sox then return true end
--- 	if bounds.yMin > display.actualContentHeight - soy then return true end
--- 	return false
-end
 
 local function enterFrame(event)
 	if not balloon.getLinearVelocity then return false end
@@ -426,7 +416,7 @@ local function enterFrame(event)
 	if vy>=-velocity then
 		vy=vy-(vy+velocity)/20
 	balloon:setLinearVelocity(0,vy)
-	
+
 	else
 		balloon:setLinearVelocity(0,-velocity)
 	end
@@ -438,7 +428,7 @@ local function enterFrame(event)
 			birdg[i]:setLinearVelocity(-velocity,0)
 		end
 	end
-	
+
 	if -(balloon.y-halfH)/100>actualScore then
 		score.text = -((balloon.y-halfH)/100-(balloon.y-halfH)%100/100)
 		actualScore=-((balloon.y-halfH)/100-(balloon.y-halfH)%100/100)
@@ -447,14 +437,14 @@ local function enterFrame(event)
 	end
 
 	for i = 1, cloudg.numChildren do
-		local y = cloudg[i].y 
+		local y = cloudg[i].y
 		if y > balloon.y+display.actualContentHeight then
 			cloudg[i]:translate(0, math.random(display.actualContentHeight,display.actualContentHeight*2)*-2) --math.random(display.actualContentWidth), math.random(display.actualContentHeight)*-2
         		cloudg[i].x=math.random(0, display.actualContentWidth)
 		end
 	end
 
-	for i=1, birdg.numChildren do	
+	for i=1, birdg.numChildren do
 		if not birdg[i]==nil then
 			if birdg[i].y> balloon.y+display.actualContentHeight then
         			display.remove( birdg[i] )
@@ -463,11 +453,11 @@ local function enterFrame(event)
 		 	end
 	 	end
  	end
- 
+
 	if actualScore>=actualRecord then
 		bestScore()
  	end
-	
+
 	velocity=velocity+(actualScore/500)
 	move=velocity/70
 	local hx, hy = balloon:localToContent(0,0)
@@ -496,7 +486,7 @@ function scene:show( event )
 		balloon.collision=onCollisionBalloon
 		balloon:addEventListener("collision")
 		audio.play(birdsMusic, {channel=1, loop=-1})
-		
+
 		if tutorial[1] then
 			fog=display.newImageRect( "tutorial.png", display.actualContentWidth, display.actualContentHeight )
 			fog.anchorX = 0
@@ -551,7 +541,7 @@ function scene:destroy( event )
 		pauseBtn = nil
 	end
 	-- Called prior to the removal of scene's "view" (sceneGroup)
-	
+
 	audio.dispose(tweet)
 	tweet=nil
 	audio.dispose( pop )

@@ -2,11 +2,15 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 local screenW, screenH, halfW, halfH = display.actualContentWidth, display.actualContentHeight, display.contentCenterX, display.contentCenterY
 local bestScore
+if composer.getVariable( "sound" )==nil then
+	composer.setVariable( "sound",true )
+end
+
 -- include Corona's "widget" library
 local widget = require "widget"
 local clouds = require "cloud"
 local birds = require "bird"
-
+local sound= require "sound"
 local balloon = require "balloon"
 
 local json = require( "json" )
@@ -19,32 +23,34 @@ local filePath2 = system.pathForFile( "tutorial.json", system.DocumentsDirectory
 local playBtn
 local highBtn
 local tutorialBtn
+local soundBtn
 
-
-local click = audio.loadSound( "pop.wav" )
+local click = audio.loadSound( "click.wav" )
 local tweet = audio.loadSound( "tweet.wav" )
 local music = audio.loadSound ("PeacefulScene.wav")
-audio.reserveChannels( 3 )
-audio.setMaxVolume( 0.1, {channel=2})
-audio.setMaxVolume( 0.05, {channel=3})
-audio.setMaxVolume(0.5, {channel=1})
+audio.setMaxVolume(0.5, {channel=1}) -- background music channel
+audio.setMaxVolume( 0.1, {channel=2}) -- botton channel
+audio.setMaxVolume( 0.05, {channel=3}) -- birds channel
 
-local speaker = display.newImageRect("speaker.png", 30, 30)
-speaker.x = display.contentCenterX*1.8
-speaker.y = display.contentCenterY-display.contentCenterY
-if (sound==false) then
-	speaker.isVisible = false
-else
-	speaker.alpha=0.5
-end
-local speakerOff = display.newImageRect("speaker-off.png", 30, 30)
-speakerOff.x = display.contentCenterX*1.8
-speakerOff.y = display.contentCenterY-display.contentCenterY
-if (sound==false) then
-	speakerOff.alpha = 0.5
-else
-	speakerOff.isVisible = false
-end
+
+-- local speaker = display.newImageRect("speaker.png", 30, 30)
+-- speaker.x = display.contentCenterX*1.8
+-- speaker.y = display.contentCenterY-display.contentCenterY
+-- if (sound==false) then
+-- 	speaker.isVisible = false
+-- else
+-- 	speaker.alpha=0.5
+-- end
+-- local speakerOff = display.newImageRect("speaker-off.png", 30, 30)
+-- speakerOff.x = display.contentCenterX*1.8
+-- speakerOff.y = display.contentCenterY-display.contentCenterY
+-- if (sound==false) then
+-- 	speakerOff.alpha = 0.5
+-- else
+-- 	speakerOff.isVisible = false
+-- end
+
+
 
 
 
@@ -55,13 +61,13 @@ local function loadScores()
         	io.close( file )
         	scoresTable = json.decode( contents )
 	end
-	
+
 	if ( scoresTable == nil or #scoresTable == 0 ) then
         	scoresTable = { 0, 0, 0}
     	end
 end
 
-	
+
 local function loadTutorial()
 	local file = io.open( filePath2, "r" )
 
@@ -71,11 +77,11 @@ local function loadTutorial()
 	    	tutorial = json.decode( contents )
 	end
 
-	if ( tutorial == nil or #tutorial == 0) then 
+	if ( tutorial == nil or #tutorial == 0) then
 		tutorial = {true}
 	end
 end
-	
+
 
 local function saveTutorial()
 	table.remove( tutorial )
@@ -90,11 +96,13 @@ end
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
-	if (speaker.isVisible == true) then
-		audio.play(click, {channel = 2})
-	end
+	-- if (speaker.isVisible == true) then
+	-- 	audio.play(click, {channel = 2})
+	-- end
 	-- go to game.lua scene
 	physics.stop()
+	audio.play(click, {channel = 2})
+
 	audio.stop(1)
 	timer.cancel(timerNewBird)
 	Runtime:removeEventListener("enterFrame", enterFrame)
@@ -104,9 +112,11 @@ local function onPlayBtnRelease()
 end
 
 local function onTutorialBtnRelease()
-	if (speaker.isVisible == true) then
-		audio.play(click, {channel = 2})
-	end
+	-- if (speaker.isVisible == true) then
+	-- 	audio.play(click, {channel = 2})
+	-- end
+	audio.play(click, {channel = 2})
+	audio.stop(1)
 
 	-- go to game.lua scene
 	physics.stop()
@@ -122,8 +132,6 @@ end
 
 local function onHighBtnRelease()
 	audio.play(click, {channel = 2})
-
-	-- go to game.lua scene
 	physics.stop()
     	timer.cancel(timerNewBird)
     	Runtime:removeEventListener("enterFrame", enterFrame)
@@ -132,41 +140,70 @@ local function onHighBtnRelease()
     	return true	-- indicates successful touch
 end
 
-local function onTap( event )
-	if (sound == true) then
-		audio.setVolume(0, {channel=1})
-		audio.setVolume(0, {channel=2})
-		audio.setVolume(0, {channel=3})
-		sound = false
-		speaker.isVisible = false
-		speakerOff.isVisible = true
-		speakerOff.alpha = 0.5
+local function onSoundBtnRelease(event)
 
-	elseif (sound == false) then
-		audio.setVolume(0.5, {channel=1})
-		audio.setVolume(0.05, {channel=2})
-		audio.setVolume(0.1, {channel=3})
-		sound = true
-		speaker.isVisible = true
-		speaker.alpha = 0.5
-		speakerOff.isVisible = false
+	if composer.getVariable( "sound" ) then
+		composer.setVariable( "sound", false )
+		soundBtn:setSequence("soundOff")
+
+		-- soundBtn.defaultFile="speakerOff.png"
+	else
+		audio.play(click, {channel = 2})
+		composer.setVariable( "sound", true )
+		soundBtn:setSequence("soundOn")
+
+
+		-- soundBtn.defaultFile="speaker.png"
+
+
 	end
-	
-	
-    return true
-end 
+end
 
-speaker:addEventListener( "tap", onTap )	
-speakerOff:addEventListener( "tap", onTap)
+local function onInfoBtnRelease(event)
+	audio.play(click, {channel = 2})
+	physics.stop()
+    	timer.cancel(timerNewBird)
+    	Runtime:removeEventListener("enterFrame", enterFrame)
+    	composer.removeScene( "menu")
+    	composer.gotoScene( "info", "fade", 400 )
+end
+
+-- local function onTap( event )
+-- 	if (sound == true) then
+-- 		audio.setVolume(0, {channel=1})
+-- 		audio.setVolume(0, {channel=2})
+-- 		audio.setVolume(0, {channel=3})
+-- 		sound = false
+-- 		speaker.isVisible = false
+-- 		speakerOff.isVisible = true
+-- 		speakerOff.alpha = 0.5
+--
+-- 	elseif (sound == false) then
+-- 		audio.setVolume(0.5, {channel=1})
+-- 		audio.setVolume(0.05, {channel=2})
+-- 		audio.setVolume(0.1, {channel=3})
+-- 		sound = true
+-- 		speaker.isVisible = true
+-- 		speaker.alpha = 0.5
+-- 		speakerOff.isVisible = false
+-- 	end
+--
+--
+--     return true
+-- end
+--
+-- speaker:addEventListener( "tap", onTap )
+-- speakerOff:addEventListener( "tap", onTap)
 
 function scene:create( event )
 	local sceneGroup = self.view
 	loadScores()
 	loadTutorial()
 	composer.setVariable( "record", scoresTable[1] )
-
+	audio.play(music, {channel=1, loops=-1})
 
 	-- Called when the scene's view does not exist.
+
 
 	-- display a background image
 	local backgroundM = display.newImageRect( "background.png", display.actualContentWidth, display.actualContentHeight )
@@ -180,14 +217,14 @@ function scene:create( event )
 	local titleLogo = display.newImageRect( "logo.png", 250, 60 )
 	titleLogo.x = display.contentCenterX
 	titleLogo.y = display.contentCenterY*0.6
-	
+
 	grass = display.newImageRect( "ground.png", screenW, screenH)
 	grass.anchorX = 0
 	grass.anchorY = 1
 	--  draw the grass at the very bottom of the screen
 	grass.x, grass.y = display.screenOriginX, display.actualContentHeight*1.8 + display.screenOriginY
   	grass.alpha=0.7
-	
+
 
 	-- create a widget button (which will loads level1.lua on release)
 	playBtn = widget.newButton{
@@ -226,6 +263,14 @@ function scene:create( event )
 	tutorialBtn.x = display.contentCenterX
 	tutorialBtn.y = display.contentCenterY*1.1
 
+	soundBtn=sound.new(sceneGroup,display.contentCenterX*1.8,display.contentCenterY-display.contentCenterY)
+	soundBtn.alpha=0.5
+
+  infoBtn=display.newImageRect(sceneGroup,"info.png", 24,24)
+	infoBtn.x,infoBtn.y=display.contentCenterX*0.2, display.contentCenterY-display.contentCenterY
+	infoBtn.alpha=0.5
+
+
 	-- all display objects must be inserted into group
 	sceneGroup:insert( backgroundM )
 
@@ -240,9 +285,7 @@ function scene:create( event )
 end
 
 local function newBird(event)
-	if (sound == true) then
-		audio.play(tweet, {channel=3})
-	end
+	audio.play(tweet, {channel=3})
 	birds.new(birdgroup, (math.random(1,2)-1)*screenW, math.random(0,display.actualContentHeight/4)).alpha=0.8
 	timerNewBird=timer.performWithDelay( math.random(1,2)*3000, newBird )
 end
@@ -254,8 +297,20 @@ local function offScreen(object)
 	if bounds.xMin > display.actualContentWidth - sox then return true end
 	return false
 end
-	
+
 local function enterFrame(event)
+
+	if composer.getVariable( "sound" ) then
+		audio.play(music, {channel=1, loops=-1})
+		audio.setVolume(0.5, {channel=1})
+		audio.setVolume(0.1, {channel=2})
+		audio.setVolume(0.1, {channel=3})
+	else
+		audio.setVolume(0, {channel=1})
+		audio.setVolume(0, {channel=2})
+		audio.setVolume(0, {channel=3})
+	end
+
 	for i=1, birdgroup.numChildren do
 		if birdgroup[i].sequence=="flyToRight"    then
 			birdgroup[i]:setLinearVelocity(200,0)
@@ -263,7 +318,7 @@ local function enterFrame(event)
 		else
 			birdgroup[i]:setLinearVelocity(-200,0)
 		end
-		
+
 		if not birdgroup[i]==nil then
 			if offScreen(birdgroup[i])==true then
 				display.remove( birdgroup[i] )
@@ -290,11 +345,22 @@ function scene:show( event )
 	corda.x,corda.y=balloon.x,balloon.y+balloon.height
 	corda.alpha=0.4
 	balloon:toFront()
+	soundBtn:toFront()
+	infoBtn:toFront()
+
 
 	elseif phase == "did" then
+		if composer.getVariable("sound") then
+			soundBtn.filename="speaker.png"
+		else
+			soundBtn.filename="speaker-off.png"
+end
 		timerNewBird=timer.performWithDelay( math.random(1,2)*2000, newBird )
 		Runtime:addEventListener("enterFrame", enterFrame)
-		audio.play(music, {channel=1, loops=-1})
+		soundBtn:addEventListener("tap", onSoundBtnRelease)
+		infoBtn:addEventListener("tap", onInfoBtnRelease)
+
+
 	end
 end
 
@@ -308,10 +374,14 @@ function scene:hide( event )
 		timer.cancel(timerNewBird)
 		physics.stop()
 
+
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
 		Runtime:removeEventListener("enterFrame", enterFrame)
+		soundBtn:removeEventListener("tap", onSoundBtnRelease)
+
 		composer.removeScene("menu")
+
 	end
 end
 
@@ -329,9 +399,10 @@ function scene:destroy( event )
 	music = nil
 	display.remove(speaker)
 	display.remove(speakerOff)
-	
+
 	Runtime:removeEventListener("enterFrame", enterFrame)
-	
+	soundBtn:removeEventListener("tap", onSoundBtnRelease)
+
 
 	if playBtn then
 		playBtn:removeSelf()	-- widgets must be manually removed
