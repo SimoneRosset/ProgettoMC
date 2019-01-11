@@ -150,39 +150,39 @@ end
 
 local function shift(event)
 	if event.phase == "began" then
-		held=true;
-		finger.alpha = 0.8
-	elseif event.phase == "moved" and held then
-		if balloon.x<event.x then
-	        	balloon.x=balloon.x+move
+        -- display.getCurrentStage():setFocus( finger )
+				finger.isFocus = true
+        finger.alpha=0.8
+		elseif finger.isFocus then
+      if event.phase == "moved" or not event.phase == "moved" then
+        if balloon.x<event.x then
+          balloon.x=balloon.x+move
+        end
+        if balloon.x>event.x then
+          balloon.x=balloon.x-move
+        end
+        corda.x=balloon.x
+        finger.x=event.x
+        finger.y=event.y
+        corda.height=math.sqrt((event.y-display.contentCenterY*1.3)^2+(event.x-balloon.x)^2)
+        rotazioneRad=-math.atan2((event.y-display.contentCenterY*1.3),(event.x-balloon.x))
+        rotazione= math.deg(rotazioneRad+math.pi/2)
+        balloon.rotation = -rotazione--accompagna lo spostamento con una inclinazione
+        corda.rotation= -rotazione
+
+      elseif event.phase == "ended" or event.phase == "cancelled" then
+				balloon.rotation = 0
+        corda.rotation=0
+        if corda.height<balloon.height then
+        corda.height=balloon.height
+        end
+        finger.x,finger.y=corda.x, corda.y+corda.height
+        finger.alpha=0.2
+        finger.isFocus = false
+      else
+          finger.isFocus = false
 		end
-		
-		if balloon.x>event.x then
-			balloon.x=balloon.x-move
-		end					
-		
-		corda.x=balloon.x
-            	finger.x=event.x
-            	finger.y=event.y
-		corda.height=math.sqrt((event.y-display.contentCenterY*1.3)^2+(event.x-balloon.x)^2)
-		rotazioneRad=-math.atan2((event.y-display.contentCenterY*1.3),(event.x-balloon.x))
-		rotazione= math.deg(rotazioneRad+math.pi/2)
-		balloon.rotation = -rotazione --accompagna lo spostamento con una inclinazione
-                corda.rotation= -rotazione
-	
-	elseif event.phase == "ended" or event.phase == "cancelled" then
-		held=false
-		balloon.rotation = 0
-        	corda.rotation=0
-        
-		if corda.height<balloon.height then
-			corda.height=balloon.height
-        	end
-		finger.x,finger.y=corda.x, corda.y+corda.height
-		finger.aplha=0.2
-	else
-		held=false
-	end
+  end
 end
 
 local function ready(event)
@@ -383,11 +383,41 @@ local function onOkBtnRelease()
 	pauseBtn:toFront()
 	pauseBtn:setEnabled(true)
 end
+local function onOkBtnRelease()
+	audio.play(click )
+
+	physics.start()
+
+
+	timer.resume( timerNewBird )
+	background:addEventListener("touch", shift)
+display.remove(fog)
+background:remove( okBtn )
+
+backBtn:toFront()
+backBtn:setEnabled(true)
+
+
 
 local function newBird(event)
 	audio.play(tweet, {channel=3})
 	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
 	timerNewBird=timer.performWithDelay( math.random(1,4)*(500-10*actualScore), newBird )
+end
+
+pauseBtn:toFront()
+pauseBtn:setEnabled(true)
+
+
+
+-- local function offScreen(object)
+-- 	local bounds = object.contentBounds
+-- 	local sox, soy = display.screenOriginX, display.screenOriginY
+-- 	if bounds.xMax < sox then return true end
+-- 	if bounds.yMax < soy then return true end
+-- 	if bounds.xMin > display.actualContentWidth - sox then return true end
+-- 	if bounds.yMin > display.actualContentHeight - soy then return true end
+-- 	return false
 end
 
 local function enterFrame(event)
@@ -443,6 +473,11 @@ local function enterFrame(event)
 	local hx, hy = balloon:localToContent(0,0)
 	hx, hy = display.contentCenterX - hx, display.contentCenterY*1.3 - hy
 	world.y = world.y + hy
+end
+local function newBird(event)
+	audio.play(tweet, {channel=1})
+	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
+	timerNewBird=timer.performWithDelay( math.random(1,4)*500, newBird )
 end
 
 function scene:show( event )

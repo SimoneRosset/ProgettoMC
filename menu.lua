@@ -290,7 +290,7 @@ function scene:show( event )
 	corda.x,corda.y=balloon.x,balloon.y+balloon.height
 	corda.alpha=0.4
 	balloon:toFront()
-	
+
 	elseif phase == "did" then
 		timerNewBird=timer.performWithDelay( math.random(1,2)*2000, newBird )
 		Runtime:addEventListener("enterFrame", enterFrame)

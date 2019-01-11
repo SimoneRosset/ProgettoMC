@@ -95,7 +95,6 @@ function scene:create( event )
        	composer.gotoScene( "menu", "fade", 400 )
         return true	-- indicates successful touch
     end
-
     local backBtn = widget.newButton{
         textOnly=true,
         label="back",
