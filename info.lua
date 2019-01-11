@@ -63,7 +63,7 @@ function scene:create( event )
     end
     local backBtn = widget.newButton{
         textOnly=true,
-        label="back",
+        label="Back",
         labelColor = { default={ 0, 0, 0 }, over={ 1, 1, 1, 1 } },
         default="button.png",
         over="button-over.png",
