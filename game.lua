@@ -407,7 +407,7 @@ end
 local function newBird(event)
 	audio.play(tweet, {channel = 4})
 	birds.new(birdg, (math.random(1,2)-1)*screenW, math.random(balloon.y-display.actualContentHeight/2,balloon.y))
-	timerNewBird=timer.performWithDelay( math.random(1,4)*(500-10*actualScore), newBird )
+	timerNewBird=timer.performWithDelay( math.random(1,4)*500, newBird )
 end
 
 
